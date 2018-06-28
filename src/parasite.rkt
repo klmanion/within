@@ -15,8 +15,9 @@
 
     (define/override draw
       (λ (dc)
-        (send dc draw-rectangle color
-                                pos-x pos-y
+        (send dc set-pen color 0 'transparent)
+        (send dc set-brush color 'solid)
+        (send dc draw-rectangle pos-x pos-y
                                 width height)))
 
 ))
