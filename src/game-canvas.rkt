@@ -11,6 +11,9 @@
                [min-height 300])
     (inherit get-dc refresh)
     (field [player (new parasite%)])
+    (field [refresh-timer
+             (new timer% [notify-callback (thunk (send this refresh))]
+                         [interval 42])])
 
     (define/override on-paint
       (λ ()
