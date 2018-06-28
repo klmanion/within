@@ -8,10 +8,11 @@
 (define parasite%
   (class entity%
     (super-new [pos-x 97] [pos-y 97]
-               [width 5] [height 5])
-    (init-field [color (make-object color% #xFF #xFF #xFF)])
+               [width 5] [height 5]
+               [color (make-object color% #xFF #xFF #xFF)])
     (inherit-field pos-x pos-y
-                   width height)
+                   width height
+                   color)
 
     (define/override draw
       (λ (dc)

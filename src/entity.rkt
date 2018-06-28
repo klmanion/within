@@ -1,6 +1,7 @@
 #lang racket/base
 (require racket/class
-  racket/gui/base)
+  racket/gui/base
+  racket/function)
 
 (provide entity% graphical-entity%)
 
@@ -8,7 +9,8 @@
   (class object%
     (super-new)
     (init-field [pos-x 0] [pos-y 0]
-                [width 0] [height 0])
+                [width 0] [height 0]
+                [color #f])
 
     (define/public draw
       (λ (dc)
@@ -21,7 +23,21 @@
     (init-field [bm #f])
     (init-field [form 0] [stage 0])
     (inherit-field pos-x pos-y
-                   width height)
+                   width height
+                   color)
+
+    ((thunk
+       (unless (or (eq? bm #f)
+                   (eq? color #f))
+         (let ([bm-dc (new bitmap-dc% [bitmap bm])]
+               [oclr (new color%)])
+           (let-values ([(w h) (send bm-dc get-size)])
+             (for* ([x (in-range w)]
+                    [y (in-range h)])
+               (when (and (send bm-dc get-pixel x y oclr)
+                          (not (= (send oclr alpha) 0)))
+                 (send bm-dc set-pixel x y color))))))))
+
 
     (define/private src-pos
       (λ ()

@@ -25,7 +25,8 @@
                (new graphical-entity%
                     [bm (make-object bitmap% "graphics/scientist.png"
                                      'png/alpha)]
-                    [width 20] [height 40])))))
+                    [width 20] [height 40]
+                    [color (make-object color% #xFF #xFF #xFF)])))))
 
     (define/override on-paint
       (λ ()
