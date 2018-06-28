@@ -1,6 +1,7 @@
 #lang racket/base
 (require racket/class
-  racket/gui/base)
+  racket/gui/base
+  racket/function)
 (require "parasite.rkt")
 
 (provide game-canvas%)
