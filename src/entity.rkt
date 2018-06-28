@@ -20,7 +20,8 @@
     (super-new)
     (init-field [bm #f])
     (init-field [form 0] [stage 0])
-    (inherit-field pos-x pos-y)
+    (inherit-field pos-x pos-y
+                   width height)
 
     (define/private src-pos
       (λ ()
@@ -35,5 +36,6 @@
             (send dc draw-bitmap-section bm
                      pos-x pos-y src-x src-y
                      width height)))))
+))
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:
