@@ -10,6 +10,7 @@
     (super-new [pos-x 97] [pos-y 97])
     (init-field [color (make-object color% #xFF #xFF #xFF)])
     (field [width 5])
+    (inherit-field pos-x pos-y)
 
     (define/public draw
       (λ (dc)

@@ -2,7 +2,7 @@
 (require racket/class
   racket/gui/base)
 
-(provide "entity.rkt")
+(provide entity%)
 
 (define entity%
   (class object%
