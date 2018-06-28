@@ -1,15 +1,15 @@
 #lang racket/base
 (require racket/class
   racket/gui/base)
+(require "entity.rkt")
 
 (provide parasite%)
 
 (define parasite%
-  (class object%
-    (super-new)
+  (class entity%
+    (super-new [pos-x 97] [pos-y 97])
     (init-field [color (make-object color% #xFF #xFF #xFF)])
-    (field [pos-x 97] [pos-y 97]
-           [width 5])
+    (field [width 5])
 
     (define/public draw
       (λ (dc)
