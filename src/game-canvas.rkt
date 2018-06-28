@@ -3,6 +3,8 @@
   racket/gui/base)
 (require "parasite.rkt")
 
+(provide game-canvas%)
+
 (define game-canvas%
   (class canvas%
     (super-new [min-width 485]
