@@ -24,7 +24,7 @@
              (list
                (new graphical-entity%
                     [bm (make-object bitmap% "graphics/scientist.png"
-                                     'png)]
+                                     'png/alpha)]
                     [width 20] [height 40])))))
 
     (define/override on-paint
