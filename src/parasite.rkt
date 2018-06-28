@@ -7,16 +7,20 @@
 
 (define parasite%
   (class entity%
-    (super-new [pos-x 97] [pos-y 97])
-    (init-field [color (make-object color% #xFF #xFF #xFF)])
-    (field [width 5])
-    (inherit-field pos-x pos-y)
+    (super-new [pos-x 97] [pos-y 97]
+               [width 5] [height 5]
+               [color (make-object color% #xFF #xFF #xFF)])
+    (inherit-field pos-x pos-y
+                   width height
+                   color)
 
-    (define/public draw
+    (define/override draw
       (λ (dc)
-        (send dc set-brush color 'solid)
         (send dc set-pen color 0 'transparent)
-        (send dc draw-rectangle pos-x pos-y width width)))
+        (send dc set-brush color 'solid)
+        (send dc draw-rectangle pos-x pos-y
+                                width height)))
+
 ))
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:
