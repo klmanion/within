@@ -15,16 +15,20 @@
                 [form 0] [stage 0])
 
     ((thunk
-       (unless (or (eq? bm #f)
-                   (eq? color #f))
-         (let ([bm-dc (new bitmap-dc% [bitmap bm])]
-               [oclr (new color%)])
-           (let-values ([(w h) (send bm-dc get-size)])
-             (for* ([x (in-range w)]
-                    [y (in-range h)])
-               (when (and (send bm-dc get-pixel x y oclr)
-                          (not (= (send oclr alpha) 0)))
-                 (send bm-dc set-pixel x y color))))))))
+       (key-bitmap)))
+
+    (define/private key-bitmap
+      (λ ()
+        (unless (or (eq? bm #f)
+                    (eq? color #f))
+          (let ([bm-dc (new bitmap-dc% [bitmap bm])]
+                [oclr (new color%)])
+            (let-values ([(w h) (send bm-dc get-size)])
+              (for* ([x (in-range w)]
+                     [y (in-range h)])
+                (when (and (send bm-dc get-pixel x y oclr)
+                           (not (= (send oclr alpha) 0)))
+                  (send bm-dc set-pixel x y color))))))))
 
     (define/private src-pos
       (λ ()
