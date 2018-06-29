@@ -22,7 +22,7 @@
     ((thunk
        (set! visible-entity-lst
              (list
-               (new graphical-entity%
+               (new entity%
                     [bm (make-object bitmap% "graphics/scientist.png"
                                      'png/alpha)]
                     [width 20] [height 40]

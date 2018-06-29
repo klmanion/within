@@ -3,7 +3,7 @@
   racket/gui/base
   racket/function)
 
-(provide entity% graphical-entity%)
+(provide entity%)
 
 (define entity%
   (class object%
@@ -11,20 +11,8 @@
     (init-field [pos-x 0] [pos-y 0]
                 [width 0] [height 0]
                 [color #f])
-
-    (define/public draw
-      (λ (dc)
-        void))
-))
-
-(define graphical-entity%
-  (class entity%
-    (super-new)
-    (init-field [bm #f])
-    (init-field [form 0] [stage 0])
-    (inherit-field pos-x pos-y
-                   width height
-                   color)
+    (init-field [bm #f]
+                [form 0] [stage 0])
 
     ((thunk
        (unless (or (eq? bm #f)
@@ -38,14 +26,13 @@
                           (not (= (send oclr alpha) 0)))
                  (send bm-dc set-pixel x y color))))))))
 
-
     (define/private src-pos
       (λ ()
         (let ([src-x (* stage width)]
               [src-y (* form height)])
           (values src-x src-y))))
     
-    (define/override draw
+    (define/public draw
       (λ (dc)
         (unless (eq? bm #f)
           (let-values ([(src-x src-y) (src-pos)])
