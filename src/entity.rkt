@@ -18,7 +18,7 @@
        (key-bitmap)))
 
     (define/private key-bitmap
-      (λ ()
+      (λ ([color color])
         (unless (or (eq? bm #f)
                     (eq? color #f))
           (let ([bm-dc (new bitmap-dc% [bitmap bm])]
