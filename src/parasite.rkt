@@ -20,7 +20,6 @@
         (send dc set-brush color 'solid)
         (send dc draw-rectangle pos-x pos-y
                                 width height)))
-
 ))
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:
