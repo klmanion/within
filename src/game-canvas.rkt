@@ -3,7 +3,8 @@
   racket/gui/base
   racket/function)
 (require "entity.rkt"
-  "parasite.rkt")
+  "parasite.rkt"
+  "read-map.rkt")
 
 (provide game-canvas%)
 
@@ -12,6 +13,7 @@
     (super-new [min-width 485]
                [min-height 300])
     (inherit get-dc refresh)
+    (init-field [map #f])
     (field [player (new parasite%)]
            [visible-entity-lst '()])
     (field [refresh-timer
@@ -19,6 +21,7 @@
                          [interval 42])])
 
     ;; temporary
+    #|
     ((thunk
        (set! visible-entity-lst
              (list
@@ -27,6 +30,12 @@
                                      'png/alpha)]
                     [width 20] [height 40]
                     [color (make-object color% #xFF #xFF #xFF)])))))
+    |#
+
+    ((thunk
+       (unless (eq? map #f)
+         (when (string? map)
+           (printf "~a\n" (read-map map))))))
 
     (define/override on-paint
       (λ ()

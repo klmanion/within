@@ -10,7 +10,8 @@
                [label "Within"]
                [style '(fullscreen-button)]))
 
-(define cv (new game-canvas% [parent f]))
+(define cv (new game-canvas% [parent f]
+                             [map "maps/test.rkt"]))
 
 (module+ main
   (send f show #t))

@@ -80,21 +80,19 @@
      (syntax-parameterize ([current-container current-obj])
        #'(c))]))
 
+(define-syntax clause-header->class
+  (syntax-rules ()
+    [(_ cn _)
+     (datum->syntax
+       (string-append (string-downcase (syntax-e cn))
+                      "%"))]))
+
 (define-syntax clause
   (syntax-rules ()
     [(_ ch cb ...)
-     #'(syntax-parameterize ([current-obj ch])
-          cb ...)]))
-
-(define-for-syntax clause-name->class
-  (λ (cn)
-    (datum->syntax
-      (string-append (string-downcase (syntax-e cn))
-                     "%"))))
-
-(define-syntax clause-head
-  (syntax-rules ()
-    [(_ cn _)
-     #`(new #,(clause-name->class cn))]))
+     (syntax-parameterize ([current-obj (new (clause-header->class ch))])
+       #'(begin
+           cb ...
+           (send current-container add-entity current-obj)))]))
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:
