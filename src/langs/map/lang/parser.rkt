@@ -2,7 +2,7 @@
 program ::= head-clause room-clause*
 
 head-clause ::= head-clause-head head-clause-body
-head-clause-head ::= "HEAD:"
+head-clause-head ::= "HEAD" ":"
 head-clause-body ::= clause-body
 
 room-clause ::= room-clause-head room-clause-body

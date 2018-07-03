@@ -95,4 +95,12 @@
            cb ...
            (send current-container add-entity current-obj)))]))
 
+(define-syntax id
+  (syntax-rules ()
+    [(_ w) #'(w)]))
+
+(define-syntax word
+  (syntax-rules ()
+    [(_ word) #'word]))
+
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

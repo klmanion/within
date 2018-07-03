@@ -1,21 +1,22 @@
 #lang racket/base
+(require racket/string)
 (require brag/support
-  (prefix-in : br-parser-tools/sre))
+  (prefix-in : br-parser-tools/lex-sre))
 
 (define make-tokenizer
   (λ (port)
     (lambda ()
-      ((lexer
+      ((lexer-srcloc
          [(from/to ";" "\n")
           (token 'COMMENT lexeme #:skip? #t)]
          [(:: (:+ upper-case) whitespace)
           (token 'UCASE_WORD_TOK (string-trim lexeme))]
-         [(:: alphabetic (:* (complement whitespace)))
+         [(:: (union alphabetic "'")
+              (:* (complement whitespace)))
           (token 'WORD-TOK lexeme)]
          [(:+ numeric)
           (token 'INT-TOK (string->number lexeme))]
-         [(eof) 'eof]
-         [any-char (token 'CHAR_TOK lexeme)])
+         [any-char (token 'CHAR_TOK lexeme #:skip? #t)])
        port))))
 (provide make-tokenizer)
 
