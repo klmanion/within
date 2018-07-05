@@ -8,6 +8,9 @@
 
 (provide game-canvas%)
 
+;; game-canvas% {{{
+;
+
 (define game-canvas%
   (class canvas%
     (super-new [min-width 485]
@@ -19,6 +22,9 @@
     (field [refresh-timer
              (new timer% [notify-callback (thunk (send this refresh))]
                          [interval 42])])
+
+    ;; Initialization {{{
+    ;
 
     ;; temporary
     #|
@@ -36,6 +42,10 @@
        (unless (eq? map #f)
          (when (string? map)
            (printf "~a\n" (read-map map))))))
+    ;; }}}
+
+    ;; Callback methods {{{
+    ;
 
     (define/override on-paint
       (λ ()
@@ -57,6 +67,8 @@
               [scale (min (/ width 485)
                           (/ height 300))])
           (send dc set-scale scale scale))))
+    ;; }}}
 ))
+;; }}}
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

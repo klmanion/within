@@ -5,6 +5,9 @@
 
 (provide parasite%)
 
+;; parasite% {{{
+;
+
 (define parasite%
   (class entity%
     (super-new [pos-x 97] [pos-y 97]
@@ -14,12 +17,17 @@
                    width height
                    color)
 
+    ;; Action methods {{{
+    ;
+
     (define/override draw
       (λ (dc)
         (send dc set-pen color 0 'transparent)
         (send dc set-brush color 'solid)
         (send dc draw-rectangle pos-x pos-y
                                 width height)))
+    ;; }}}
 ))
+;; }}}
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

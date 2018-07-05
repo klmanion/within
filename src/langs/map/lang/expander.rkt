@@ -1,6 +1,9 @@
 #lang racket/base
 (require (for-syntax racket/base syntax/parse))
 
+;; #%module-begin {{{
+;
+
 (define-syntax map-module-begin
   (syntax-rules ()
     [(_ PARSE_TREE)
@@ -8,9 +11,16 @@
         (define data PARSE_TREE)
         (provide data))]))
 (provide (rename-out [map-module-begin #%module-begin]))
+;; }}}
+
+;; Syntax expanders {{{
+;
 
 (define-syntax-parameter current-obj #f)
 (define-syntax-parameter current-container #f)
+
+;; Helper functions {{{
+;
 
 (define-for-syntax clause-head->id
   (syntax-rules ()
@@ -27,6 +37,12 @@
           #'(define (clause-head->id rch) new room%
             #,(unless (null? bss)
                 (room-clause->define (car bss) (cdr bss))))])])))
+
+(define-syntax id-mutator
+  (syntax-rules ()
+    [(id)
+     (datum->syntax (string-append "set-" (syntax->datum id) "!"))]))
+;; }}}
 
 (define-syntax program
   (syntax-rules ()
@@ -55,17 +71,12 @@
   (syntax-rules ()
     [(_ ...) #'(...)]))
 
-(define-syntax mutator
-  (syntax-rules ()
-    [(id)
-     (datum->syntax (string-append "set-" (syntax->datum id) "!"))]))
-
 (define-syntax assignment
   (syntax-rules ()
     [(_ member-id rvalue)
      (unless (eq? current-obj #f)
        #`(send current-obj
-               #,(mutator member-id)
+               #,(id-mutator member-id)
                #,(syntax-e rvalue)))]))
 
 (define-syntax directive
@@ -102,5 +113,6 @@
 (define-syntax word
   (syntax-rules ()
     [(_ word) #'word]))
+;; }}}
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:
