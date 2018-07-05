@@ -4,7 +4,7 @@
 
 (define read-syntax
   (λ (path port)
-    (datum->syntax #f `(module map-module map/expander
+    (datum->syntax #f `(module map-module map/lang/expander
                          ,(parse path (make-tokenizer port))))))
 (provide read-syntax)
 

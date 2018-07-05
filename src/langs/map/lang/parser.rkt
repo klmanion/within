@@ -1,30 +1,28 @@
 #lang brag
-program ::= head-clause room-clause*
+program ::= head-clause clause*
 
-head-clause ::= head-clause-head head-clause-body
-head-clause-head ::= "HEAD" ":"
-head-clause-body ::= clause-body
+head-clause ::= clause
 
-room-clause ::= room-clause-head room-clause-body
-room-clause-head ::= "ROOM" id ":"
+clause ::= clause-head clause-body
+
+clause-head ::= clause-name [id] /":"
+clause-name ::= ucase-word
 id ::= word
-room-clause-body ::= clause-body
 
-clause-body ::= (assignment | directive | contained)*
+clause-body ::= clause-body-line*
+@clause-body-line ::= (assignment | directive | contained)
 
 assignment ::= member-id rvalue
-member-id ::= "." word
+member-id ::= /"." word
 rvalue ::= str
+         | word
          | int
 
 directive ::= word
 
 contained ::= clause
-clause ::= clause-head clause-body
-clause-head ::= clause-name ":"
-clause-name ::= ucase-word
 
-str ::= word*
+str ::= STR-TOK
 ucase-word ::= UCASE-WORD-TOK
 word ::= WORD-TOK
 int ::= INT-TOK
