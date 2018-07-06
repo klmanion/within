@@ -5,6 +5,8 @@
 
 (define map-lexer
   (lexer-srcloc
+    [(from/to ";" "\n")
+     (token 'COMMENT-TOK lexeme #:skip? #t)]
     [(from/to "/*" "*/")
      (token 'COMMENT-TOK lexeme #:skip? #t)]
     [(from/to "\"" "\"")

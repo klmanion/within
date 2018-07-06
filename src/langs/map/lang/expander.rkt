@@ -8,8 +8,7 @@
   (syntax-rules ()
     [(_ PARSE_TREE)
      #'(#%module-begin
-        (define data PARSE_TREE)
-        (provide data))]))
+        'PARSE_TREE)]))
 (provide (rename-out [map-module-begin #%module-begin]))
 ;; }}}
 
