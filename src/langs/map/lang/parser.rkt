@@ -1,7 +1,7 @@
 #lang brag
 program ::= clause*
 
-clause ::= head-clause | room-clause
+@clause ::= head-clause | room-clause
 
 head-clause ::= "HEAD" /":" clause-body
 room-clause ::= "ROOM" id /":" clause-body

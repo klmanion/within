@@ -3,11 +3,39 @@
 (module+ test
   (require rackunit rackunit/text-ui))
 
+;; map-expander-settings {{{
+;
+
+(define map-expander-settings
+  (new
+    (class object%
+      (super-new)
+      (field [room-height 80])
+  
+      ;; Accessor/Mutator member functions {{{
+      ;
+  
+      ;; room-height {{{
+      (define/public get-room-height
+        (λ ()
+          room-height))
+  
+      (define/public set-room-height!
+        (λ (nv)
+          (when (integer? nv)
+            (set! room-height nv))))
+      ;; }}}
+  
+      ;; }}}
+)))
+
+;; }}}
+
 ;; Syntax classes {{{
 ;
 
 (define-syntax-class room-clause
-  (pattern (cname:str id cbody)
+  (pattern ({~literal room-clause} cname:str id cbody)
            #:attr id #'id))
 
 ;; }}}
@@ -21,10 +49,11 @@
      #`(#%module-begin
         (module+ configure-runtime
           (require "ship.rkt" "room.rkt"))
+
         (define room-ids
           (stx-map (λ (clause)
                      (syntax-rules ()
-                       [(_ rc:room-clause) #'rc.id]))
+                       [(rc:room-clause) #'rc.id]))
                    PARSE_TREE))
 
         #,@(map (λ (id)
@@ -85,29 +114,14 @@
 
 (define-syntax head-clause
   (syntax-rules ()
-    [(_ clause)
-     (syntax-parameterize ([in-head? #t])
-       #'clause)]))
-
-(define-syntax clause
-  (syntax-rules ()
-    [(_ ch cb)
-     (syntax-parameterize ([current-obj
-                            (if in-head? 
-                                #f
-                                (new (clause-header->class ch)))])
-       #'((begin
-            cb
-            (unless (eq? current-container #f)
-              (send current-container add-entity current-obj)))))]))
-
-(define-syntax id
-  (syntax-rules ()
-    [(_ w) #'w]))
+    [(_ cname:str cbody)
+     (syntax-parameterize ([in-head? #t]
+                           [current-obj map-expander-settings])
+       #'cbody)]))
 
 (define-syntax clause-body
   (syntax-rules ()
-    [(_ fix-me ...) #'((begin fix-me ...))]))
+    [(_ cbl ...) #'((begin cbl ...))]))
 
 (define-syntax assignment
   (syntax-rules ()
