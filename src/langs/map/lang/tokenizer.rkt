@@ -3,7 +3,7 @@
 (require brag/support)
 (require "lexer.rkt")
 (module+ test
-  (require rackunit))
+  (require rackunit rackunit/text-ui))
 
 (define make-tokenizer
   (λ (port [path #f])

@@ -1,5 +1,16 @@
 #lang racket/base
 (require (for-syntax racket/base syntax/parse))
+(module+ test
+  (require rackunit rackunit/text-ui))
+
+;; Syntax classes {{{
+;
+
+(define-syntax-class room-clause
+  (pattern (cname:str id cbody)
+           #:attr id #'id))
+
+;; }}}
 
 ;; #%module-begin {{{
 ;
@@ -7,9 +18,25 @@
 (define-syntax map-module-begin
   (syntax-rules ()
     [(_ PARSE_TREE)
-     #'(#%module-begin
-        'PARSE_TREE)]))
+     #`(#%module-begin
+        (module+ configure-runtime
+          (require "ship.rkt" "room.rkt"))
+        (define room-ids
+          (stx-map (λ (clause)
+                     (syntax-rules ()
+                       [(_ rc:room-clause) #'rc.id]))
+                   PARSE_TREE))
+
+        #,@(map (λ (id)
+                  #'((define id (new room% [name id]))))
+                room-ids)
+
+        (define ship (new ship% [rooms room-ids]))
+
+        PARSE_TREE
+        (provide ship))]))
 (provide (rename-out [map-module-begin #%module-begin]))
+
 ;; }}}
 
 ;; Syntax expanders {{{
@@ -53,11 +80,8 @@
 
 (define-syntax program
   (syntax-rules ()
-    [(_ head-clause clause ...)
-     #`((begin
-          head-clause
-          #,(room-clause->define clause ...)
-          clause ...))]))
+    [(_ clause ...)
+     #'((begin clause ...))]))
 
 (define-syntax head-clause
   (syntax-rules ()
@@ -83,7 +107,7 @@
 
 (define-syntax clause-body
   (syntax-rules ()
-    [(_ ...) #'((begin ...))]))
+    [(_ fix-me ...) #'((begin fix-me ...))]))
 
 (define-syntax assignment
   (syntax-rules ()
@@ -105,5 +129,14 @@
      (syntax-parameterize ([current-container current-obj])
        #'c)]))
 ;; }}}
+
+;; Unit tests {{{
+;
+
+(module+ test
+  (run-tests
+    (test-suite "syntax expanders"
+      )))
+; }}}
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:
