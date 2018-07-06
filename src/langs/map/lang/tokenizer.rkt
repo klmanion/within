@@ -1,7 +1,6 @@
 #lang racket/base
 (require racket/string)
-(require brag/support
-  (prefix-in : br-parser-tools/lex-sre))
+(require brag/support)
 (require "lexer.rkt")
 (module+ test
   (require rackunit))
