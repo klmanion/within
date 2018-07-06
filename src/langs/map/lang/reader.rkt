@@ -1,11 +1,13 @@
 #lang racket/base
+(require syntax/strip-context)
 (require "tokenizer.rkt"
   "parser.rkt")
 
 (define read-syntax
   (λ (path port)
-    (datum->syntax #f `(module map-module map/lang/expander
-                         ,(parse path (make-tokenizer port))))))
+    (strip-context
+      #`(module map-module map/lang/expander
+          #,(parse path (make-tokenizer port path))))))
 (provide read-syntax)
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

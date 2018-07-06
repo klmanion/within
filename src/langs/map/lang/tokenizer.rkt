@@ -2,31 +2,19 @@
 (require racket/string)
 (require brag/support
   (prefix-in : br-parser-tools/lex-sre))
+(require "lexer.rkt")
+(module+ test
+  (require rackunit))
 
 (define make-tokenizer
-  (λ (port)
+  (λ (port [path #f])
+    (port-count-lines! port)
+    (lexer-file-path path)
     (lambda ()
-      ((lexer-srcloc
-         [(from/to ";" "\n")
-          (token 'COMMENT lexeme #:skip? #t)]
-         [(from/to "\"" "\"")
-          (token 'STR-TOK (trim-ends "\"" lexeme "\""))]
-         [(:: upper-case
-              (:* (union upper-case "_" "-")))
-          (token 'UCASE-WORD-TOK lexeme)]
-         [(:: (union alphabetic "'")
-              (:* (union alphabetic "_" "-")))
-          (token 'WORD-TOK lexeme)]
-         [(:+ numeric)
-          (token 'INT-TOK (string->number lexeme))]
-         [whitespace
-          (token 'WHITESPACE-TOK lexeme #:skip? #t)]
-         [any-char lexeme])
-       port))))
+      (map-lexer port))))
 (provide make-tokenizer)
 
 (module+ test
-  (require rackunit)
   (apply-tokenizer-maker make-tokenizer #<<EOB
 HEAD:
 
