@@ -1,30 +1,35 @@
 #lang brag
-program ::= head-clause clause*
+program ::= clause*
 
-head-clause ::= clause
+clause ::= head-clause | room-clause
 
-clause ::= clause-head clause-body
-
-clause-head ::= clause-name [id] /":"
-clause-name ::= ucase-word
-id ::= word
+head-clause ::= "HEAD" /":" clause-body
+room-clause ::= "ROOM" id /":" clause-body
+@id ::= word
 
 clause-body ::= clause-body-line*
-@clause-body-line ::= (assignment | directive | contained)
+@clause-body-line ::= assignment
+                    | directive
+                    | entity-clause
 
 assignment ::= member-id rvalue
 member-id ::= /"." word
 rvalue ::= str
          | word
-         | int
+         | symbol
+         | number
 
 directive ::= word
 
-contained ::= clause
+entity-clause ::= clause-name [id] /":"
+@clause-name ::= ucase-word
 
 str ::= STR-TOK
 ucase-word ::= UCASE-WORD-TOK
 word ::= WORD-TOK
+symbol ::= /"'" word
+number ::= int | float
 int ::= INT-TOK
+float ::= int+ "." int+
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

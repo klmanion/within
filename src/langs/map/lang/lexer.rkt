@@ -5,14 +5,14 @@
 
 (define map-lexer
   (lexer-srcloc
-    [(from/to ";" "\n")
-     (token 'COMMENT lexeme #:skip? #t)]
+    [(from/to "/*" "*/")
+     (token 'COMMENT-TOK lexeme #:skip? #t)]
     [(from/to "\"" "\"")
      (token 'STR-TOK (trim-ends "\"" lexeme "\""))]
     [(:: upper-case
          (:* (union upper-case "_" "-")))
      (token 'UCASE-WORD-TOK lexeme)]
-    [(:: (union alphabetic "'")
+    [(:: alphabetic
          (:* (union alphabetic "_" "-")))
      (token 'WORD-TOK lexeme)]
     [(:+ numeric)
