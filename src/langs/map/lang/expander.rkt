@@ -53,7 +53,8 @@
         (define room-ids
           (stx-map (λ (clause)
                      (syntax-rules ()
-                       [(rc:room-clause) #'rc.id]))
+                       [(rc:room-clause) #'rc.id])
+                     clause)
                    PARSE_TREE))
 
         #,@(map (λ (id)
