@@ -22,10 +22,10 @@ EOB
           )))
         '(program
             (head-clause "HEAD" (clause-body))
-            (room-clause "ROOM" (word "foo")
+            (room-clause "ROOM" "foo"
               (clause-body
-                (directive (word "on_floor"))
-                (assignment (member-id (word "x"))
+                (directive "on_floor")
+                (assignment (member-id "x")
                             (rvalue (number (int 10)))))))
         "failed to parse test program")))))
   

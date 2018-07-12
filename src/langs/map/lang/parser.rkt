@@ -26,7 +26,7 @@ entity-clause ::= clause-name [id] /":"
 
 str ::= STR-TOK
 ucase-word ::= UCASE-WORD-TOK
-word ::= WORD-TOK
+@word ::= WORD-TOK
 symbol ::= /"'" word
 number ::= int | float
 int ::= INT-TOK
