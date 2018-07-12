@@ -21,7 +21,7 @@ ROOM foo:
   on_floor
   .x 10
 EOB
-  ) 
-)
+  ))
+        
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

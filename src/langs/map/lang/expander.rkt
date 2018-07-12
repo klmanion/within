@@ -43,28 +43,38 @@
 ;; #%module-begin {{{
 ;
 
-(define-syntax map-module-begin
+(define-syntax old-map-module-begin
   (syntax-rules ()
     [(_ PARSE_TREE)
      #`(#%module-begin
+        (printf "~a\n" "module begin")
         (module+ configure-runtime
           (require "ship.rkt" "room.rkt"))
 
-        (define room-ids
-          (stx-map (λ (clause)
-                     (syntax-rules ()
-                       [(rc:room-clause) #'rc.id])
-                     clause)
-                   PARSE_TREE))
+        (begin-for-syntax
+          (define room-ids
+            (stx-map (λ (clause)
+                       (syntax-rules ()
+                         [(rc:room-clause) #'rc.id])
+                       clause)
+                     PARSE_TREE)))
+        room-ids ; for DEBUG
 
         #,@(map (λ (id)
                   #'((define id (new room% [name id]))))
                 room-ids)
 
-        (define ship (new ship% [rooms room-ids]))
+        (begin-for-syntax
+          (define ship (new ship% [rooms room-ids])))
 
         PARSE_TREE
         (provide ship))]))
+
+(define-syntax map-module-begin
+  (syntax-rules()
+    [(_ PARSE_TREE)
+     #`(#%module-begin
+        'PARSE_TREE)]))
 (provide (rename-out [map-module-begin #%module-begin]))
 
 ;; }}}
