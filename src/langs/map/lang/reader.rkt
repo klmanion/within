@@ -4,6 +4,11 @@
 (require "tokenizer.rkt"
   "parser.rkt")
 
+(define lang-read
+  (λ (port)
+    (syntax->datum (lang-read-syntax #f port))))
+(provide (rename-out [lang-read read]))
+
 (define lang-read-syntax
   (λ (path port)
     (strip-context

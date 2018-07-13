@@ -21,7 +21,7 @@ rvalue ::= str
 
 directive ::= word
 
-entity-clause ::= clause-name [id] /":"
+entity-clause ::= clause-name [id] /":" clause-body
 @clause-name ::= ucase-word
 
 str ::= STR-TOK
