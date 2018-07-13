@@ -75,11 +75,11 @@
 
 (define-syntax map-module-begin
   (syntax-rules ()
-    [(PARSE-TREE)
+    [(_ PARSE-TREE)
      #'(#%module-begin
         (module+ configure-runtime
           (require racket/base racket/class "ship.rkt" "room.rkt"))
-        'PARSE-TREE)]))
+        PARSE-TREE)]))
 (provide (rename-out [map-module-begin #%module-begin]))
 
 ;; }}}
@@ -123,15 +123,10 @@
                       "%"))]))
 ;; }}}
 
-(define-syntax real-program
-  (syntax-rules ()
-    [(_ clause ...)
-     #'(begin clause ...)]))
-
 (define-syntax program
   (syntax-rules ()
     [(_ clause ...)
-     'foo]))
+     #'(clause ...)]))
 (provide program)
 
 (define-syntax head-clause
@@ -140,24 +135,31 @@
      (syntax-parameterize ([in-head? #t]
                            [current-obj map-expander-settings])
        #'cbody)]))
+(provide head-clause)
 
 (define-syntax clause-body
   (syntax-rules ()
-    [(_ cbl ...) #'(begin cbl ...)]))
+    [(_ cbl ...) #'(cbl ...)]))
+(provide clause-body)
 
 (define-syntax assignment
   (syntax-rules ()
     [(_ member-id rvalue)
      (unless (eq? current-obj #f)
-       #`(send current-obj
-               #,(id-mutator member-id)
-               #,(syntax-e rvalue)))]))
+       #'(set-field! member-id current-obj rvalue))]))
+(provide assignment)
+
+(define-syntax rvalue
+  (syntax-rules ()
+    [(_ content) #'content]))
+(provide rvalue)
 
 (define-syntax directive
   (syntax-rules ()
     [(_ d)
      (unless (eq? current-obj #f)
        #'(send current-obj d))]))
+(provide directive)
 
 (define-syntax entity-clause
   (syntax-rules ()
@@ -165,7 +167,8 @@
      (syntax-parameterize ([current-container current-obj])
        (syntax-parameterize ([current-obj (new (clause-header->class cname))])
          (begin #'cbody)))]))
-         
+(provide entity-clause)
+
 ;; }}}
 
 ;; Unit tests {{{

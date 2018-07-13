@@ -28,8 +28,8 @@ str ::= STR-TOK
 ucase-word ::= UCASE-WORD-TOK
 @word ::= WORD-TOK
 symbol ::= /"'" word
-number ::= int | float
-int ::= INT-TOK
-float ::= int+ "." int+
+@number ::= int | float
+@int ::= INT-TOK
+@float ::= int+ "." int+
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

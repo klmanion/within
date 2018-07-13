@@ -26,7 +26,7 @@ EOB
               (clause-body
                 (directive "on_floor")
                 (assignment (member-id "x")
-                            (rvalue (number (int 10)))))))
+                            (rvalue 10)))))
         "failed to parse test program")))))
   
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:
