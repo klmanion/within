@@ -75,11 +75,11 @@
 
 (define-syntax map-module-begin
   (syntax-rules ()
-    [(PARSE_TREE)
+    [(PARSE-TREE)
      #'(#%module-begin
         (module+ configure-runtime
-          (require racket/class "ship.rkt" "room.rkt"))
-        'PARSE_TREE)]))
+          (require racket/base racket/class "ship.rkt" "room.rkt"))
+        'PARSE-TREE)]))
 (provide (rename-out [map-module-begin #%module-begin]))
 
 ;; }}}
@@ -131,7 +131,8 @@
 (define-syntax program
   (syntax-rules ()
     [(_ clause ...)
-     #'(printf "~a\n" "working")]))
+     'foo]))
+(provide program)
 
 (define-syntax head-clause
   (syntax-rules ()
