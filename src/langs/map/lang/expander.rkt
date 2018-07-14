@@ -1,10 +1,10 @@
 #lang racket/base
 
 (require (for-syntax racket/base
+           racket/class
            syntax/parse
-           racket/class))
-(require syntax/parse
-  racket/stxparam)
+           racket/stxparam))
+(require syntax/parse)
 (module+ test
   (require rackunit rackunit/text-ui))
 
@@ -43,14 +43,21 @@
 (begin-for-syntax
   (define-syntax-class clause
     #:literals (clause)
-    (pattern (clause chead:clause-head cbody:clause-body)))
+    (pattern (clause chead:clause-head cbody:clause-body)
+      #:attr define #'(define (attribute chead.id)
+                        (new (attribute chead.class)))))
   
   (define-splicing-syntax-class clause-head
     #:literals (clause-head)
     (pattern (clause-head
                cname:clause-name
                (~optional id:str #:defaults ([id #'#f])))
-      #:attr name (attribute cname.name)))
+      #:attr name (attribute cname.name)
+      #:attr class (datum->syntax
+                     (append (string-downcase
+                              (syntax->datum
+                               (attribute name)))
+                             "%"))))
   
   (define-syntax-class clause-name
     #:literals (clause-name)
@@ -82,39 +89,13 @@
 ;; #%module-begin {{{
 ;
 
-#|
-(define-syntax old-map-module-begin
-  (syntax-parser
-    [(PARSE_TREE)
-     #`(#%module-begin
-        (module+ configure-runtime
-          (require racket/class "ship.rkt" "room.rkt"))
-
-        (begin-for-syntax
-          (define room-ids
-            (stx-map (λ (clause)
-                       (syntax-rules ()
-                         [(rc:room-clause) (attribute rc.id)]))
-                     PARSE_TREE)))
-        room-ids ; for DEBUG
-
-        #,@(map (λ (id)
-                  #'(define id (new room% [name id])))
-                room-ids)
-
-        (begin-for-syntax
-          (define ship (new ship% [rooms room-ids])))
-
-        PARSE_TREE
-        (provide ship))]))
-  |#
-
 (define-syntax map-module-begin
   (syntax-parser
     [(_ PARSE-TREE)
-     #'(#%module-begin
+     #`(#%module-begin
         (module+ configure-runtime
-          (require racket/base racket/class "ship.rkt" "room.rkt"))
+          (require racket/base racket/class)
+          (require "ship.rkt" "room.rkt"))
         PARSE-TREE)]))
 (provide (rename-out [map-module-begin #%module-begin]))
 
@@ -161,14 +142,17 @@
 (define-syntax program
   (syntax-parser
     [(_ c:clause ...)
-     #'(begin c ...)]))
+     #'(begin
+         c.define ...
+         c ...)]))
 (provide program)
 
 (define-syntax clause
   (syntax-parser
     [(_ chead:clause-head cbody:clause-body)
      (syntax-parameterize
-       ([current-container current-obj]
+       ([current-container
+         (syntax-parameter-value current-obj)]
         [current-obj
          (if (eq? (attribute chead.name) "HEAD")
              map-expander-settings
