@@ -1,16 +1,16 @@
 #lang brag
 program ::= clause*
 
-@clause ::= head-clause | room-clause
+clause ::= clause-head clause-body
 
-head-clause ::= "HEAD" /":" clause-body
-room-clause ::= "ROOM" id /":" clause-body
+clause-head ::= clause-name [id] /":"
+clause-name ::= ucase-word
 @id ::= word
 
 clause-body ::= clause-body-line*
 @clause-body-line ::= assignment
                     | directive
-                    | entity-clause
+                    | clause
 
 assignment ::= member-id rvalue
 member-id ::= /"." word
@@ -21,11 +21,8 @@ rvalue ::= str
 
 directive ::= word
 
-entity-clause ::= clause-name [id] /":" clause-body
-@clause-name ::= ucase-word
-
-str ::= STR-TOK
-ucase-word ::= UCASE-WORD-TOK
+@str ::= STR-TOK
+@ucase-word ::= UCASE-WORD-TOK
 @word ::= WORD-TOK
 symbol ::= /"'" word
 @number ::= int | float

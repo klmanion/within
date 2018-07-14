@@ -11,7 +11,6 @@
      (token 'COMMENT-TOK lexeme #:skip? #t)]
     [(from/to "\"" "\"")
      (token 'STR-TOK (trim-ends "\"" lexeme "\""))]
-    [(union "HEAD" "ROOM") lexeme]
     [(:: upper-case
          (:* (union upper-case "_" "-")))
      (token 'UCASE-WORD-TOK lexeme)]

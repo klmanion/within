@@ -1,8 +1,9 @@
 #lang racket/base
 
-(require (for-syntax racket/base syntax/parse))
-(require racket/class
-  syntax/parse
+(require (for-syntax racket/base
+           syntax/parse
+           racket/class))
+(require syntax/parse
   racket/stxparam)
 (module+ test
   (require rackunit rackunit/text-ui))
@@ -12,7 +13,7 @@
 ;; map-expander-settings {{{
 ;
 
-(define map-expander-settings
+(define-for-syntax map-expander-settings
   (new
     (class object%
       (super-new)
@@ -39,17 +40,51 @@
 
 ;; Syntax classes {{{
 ;
-
-(define-syntax-class room-clause
-  (pattern ({~literal room-clause} cname:str id cbody)))
+(begin-for-syntax
+  (define-syntax-class clause
+    #:literals (clause)
+    (pattern (clause chead:clause-head cbody:clause-body)))
+  
+  (define-splicing-syntax-class clause-head
+    #:literals (clause-head)
+    (pattern (clause-head
+               cname:clause-name
+               (~optional id:str #:defaults ([id #'#f])))
+      #:attr name (attribute cname.name)))
+  
+  (define-syntax-class clause-name
+    #:literals (clause-name)
+    (pattern (clause-name name)))
+  
+  (define-syntax-class clause-body
+    #:literals (clause-body)
+    (pattern (clause-body cbl:clause-body-line ...)))
+  
+  (define-syntax-class clause-body-line
+    (pattern (:assignment))
+    (pattern (:directive))
+    (pattern (:clause)))
+  
+  (define-syntax-class assignment
+    #:literals (assignment)
+    (pattern (assignment member-id:id rval:rvalue)))
+  
+  (define-syntax-class rvalue
+    #:literals (rvalue)
+    (pattern (rvalue content)))
+  
+  (define-syntax-class directive
+    #:literals (directive)
+    (pattern (directive word:id))))
 
 ;; }}}
 
 ;; #%module-begin {{{
 ;
 
+#|
 (define-syntax old-map-module-begin
-  (syntax-rules ()
+  (syntax-parser
     [(PARSE_TREE)
      #`(#%module-begin
         (module+ configure-runtime
@@ -72,9 +107,10 @@
 
         PARSE_TREE
         (provide ship))]))
+  |#
 
 (define-syntax map-module-begin
-  (syntax-rules ()
+  (syntax-parser
     [(_ PARSE-TREE)
      #'(#%module-begin
         (module+ configure-runtime
@@ -87,7 +123,6 @@
 ;; Syntax expanders {{{
 ;
 
-(define-syntax-parameter in-head? #f)
 (define-syntax-parameter current-obj #f)
 (define-syntax-parameter current-container #f)
 
@@ -124,50 +159,39 @@
 ;; }}}
 
 (define-syntax program
-  (syntax-rules ()
-    [(_ clause ...)
-     #'(clause ...)]))
+  (syntax-parser
+    [(_ c:clause ...)
+     #'(begin c ...)]))
 (provide program)
 
-(define-syntax head-clause
-  (syntax-rules ()
-    [(_ cname:str cbody)
-     (syntax-parameterize ([in-head? #t]
-                           [current-obj map-expander-settings])
-       #'cbody)]))
-(provide head-clause)
+(define-syntax clause
+  (syntax-parser
+    [(_ chead:clause-head cbody:clause-body)
+     (syntax-parameterize
+       ([current-container current-obj]
+        [current-obj
+         (if (eq? (attribute chead.name) "HEAD")
+             map-expander-settings
+             (attribute chead.id))])
+        #'cbody)]))
+(provide clause)
 
 (define-syntax clause-body
-  (syntax-rules ()
-    [(_ cbl ...) #'(cbl ...)]))
+  (syntax-parser
+    [(cbl:clause-body-line ...) #'(begin cbl ...)]))
 (provide clause-body)
 
 (define-syntax assignment
-  (syntax-rules ()
-    [(_ member-id rvalue)
-     (unless (eq? current-obj #f)
-       #'(set-field! member-id current-obj rvalue))]))
+  (syntax-parser
+    [a:assignment
+     #'(set-field! a.member-id current-obj a.rval)]))
 (provide assignment)
 
-(define-syntax rvalue
-  (syntax-rules ()
-    [(_ content) #'content]))
-(provide rvalue)
-
 (define-syntax directive
-  (syntax-rules ()
-    [(_ d)
-     (unless (eq? current-obj #f)
-       #'(send current-obj d))]))
+  (syntax-parser
+    [(d:directive)
+     #'(send current-obj d.word)]))
 (provide directive)
-
-(define-syntax entity-clause
-  (syntax-rules ()
-    [(_ cname cbody)
-     (syntax-parameterize ([current-container current-obj])
-       (syntax-parameterize ([current-obj (new (clause-header->class cname))])
-         (begin #'cbody)))]))
-(provide entity-clause)
 
 ;; }}}
 
