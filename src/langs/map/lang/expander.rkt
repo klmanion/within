@@ -2,9 +2,11 @@
 
 (require (for-syntax racket/base
            racket/class
-           syntax/parse))
+           syntax/parse
+           racket/syntax))
 (require syntax/parse
-  racket/stxparam)
+  racket/stxparam
+  racket/class)
 (module+ test
   (require rackunit rackunit/text-ui))
 
@@ -82,7 +84,7 @@
   
   (define-syntax-class directive
     #:literals (directive)
-    (pattern (directive word:id))))
+    (pattern (directive word:str))))
 
 ;; }}}
 
@@ -96,7 +98,10 @@
         (module+ configure-runtime
           (require racket/base racket/class)
           (require "ship.rkt" "room.rkt"))
-        PARSE-TREE)]))
+        (define ship (new ship%))
+        PARSE-TREE
+        (provide ship)
+        (void))]))
 (provide (rename-out [map-module-begin #%module-begin]))
 
 ;; }}}
@@ -128,6 +133,15 @@
                  (attribute chead.id)))])
         cbody)]))
 (provide clause)
+
+;; this silences an `unbound-literal' error for the syntax class
+(define-syntax clause-head
+  (syntax-rules ()))
+(provide clause-head)
+
+(define-syntax clause-name
+  (syntax-rules ()))
+(provide clause-name)
 
 (define-syntax clause-body
   (syntax-parser
