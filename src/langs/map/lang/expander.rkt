@@ -127,7 +127,7 @@
          ([current-container
            (syntax-parameter-value current-obj)]
           [current-obj
-          (make-rename-transformer
+           (make-rename-transformer
              (if (eq? (attribute chead.name) "HEAD")
                  #'map-expander-settings
                  (attribute chead.id)))])
@@ -151,13 +151,13 @@
 (define-syntax assignment
   (syntax-parser
     [a:assignment
-     #'(set-field! a.member-id current-obj a.rval)]))
+     #'(set-field! a.member-id (current-obj) a.rval)]))
 (provide assignment)
 
 (define-syntax directive
   (syntax-parser
     [(d:directive)
-     #'(send current-obj d.word)]))
+     #`(send (current-obj) d.word)]))
 (provide directive)
 
 ;; }}}
