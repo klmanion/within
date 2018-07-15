@@ -13,7 +13,7 @@
 ;; map-expander-settings {{{
 ;
 
-(define-for-syntax map-expander-settings
+(define map-expander-settings
   (new
     (class object%
       (super-new)
@@ -118,14 +118,15 @@
 (define-syntax clause
   (syntax-parser
     [(_ chead:clause-head cbody:clause-body)
-     (syntax-parameterize
-       ([current-container
-         (syntax-parameter-value current-obj)]
-        [current-obj
-         (if (eq? (attribute chead.name) "HEAD")
-             map-expander-settings
-             (attribute chead.id))])
-        #'cbody)]))
+     #'(syntax-parameterize
+         ([current-container
+           (syntax-parameter-value current-obj)]
+          [current-obj
+          (make-rename-transformer
+             (if (eq? (attribute chead.name) "HEAD")
+                 #'map-expander-settings
+                 (attribute chead.id)))])
+        cbody)]))
 (provide clause)
 
 (define-syntax clause-body
