@@ -53,11 +53,11 @@
                cname:clause-name
                (~optional id:str #:defaults ([id #'#f])))
       #:attr name (attribute cname.name)
-      #:attr class (datum->syntax
-                     (append (string-downcase
-                              (syntax->datum
-                               (attribute name)))
-                             "%"))))
+      #:attr class (format-id (attribute name)
+                              "~a%"
+                              (string-downcase
+                                (syntax->datum
+                                  (attribute name))))))
   
   (define-syntax-class clause-name
     #:literals (clause-name)
