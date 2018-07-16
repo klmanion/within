@@ -8,7 +8,7 @@
 ;
 
 (define ship%
-  (class object
+  (class object%
     (super-new)
     (init-field [rooms #f])
     
