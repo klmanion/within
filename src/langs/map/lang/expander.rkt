@@ -46,21 +46,29 @@
   (define-syntax-class clause
     #:literals (clause)
     (pattern (clause chead:clause-head cbody:clause-body)
-      #:attr define #'((unless (eq? chead.name "HEAD")
-                         (define chead.id
-                           (new chead.class))))))
+      #:attr define
+        (cond
+         [(string=? (syntax->datum (attribute chead.name))
+                    "HEAD")
+          #'(void)]
+         [else #'(define chead.id (new chead.class))])))
   
   (define-splicing-syntax-class clause-head
     #:literals (clause-head)
     (pattern (clause-head
                cname:clause-name
-               (~optional id:str #:defaults ([id #'#f])))
+               (~optional id-str:str
+                 #:defaults ([id-str #'#f])))
       #:attr name (attribute cname.name)
       #:attr class (format-id (attribute name)
                               "~a%"
                               (string-downcase
                                 (syntax->datum
-                                  (attribute name))))))
+                                  (attribute name))))
+      #:attr id (format-id (attribute id-str)
+                           "~a"
+                           (syntax->datum
+                             (attribute id-str)))))
   
   (define-syntax-class clause-name
     #:literals (clause-name)
@@ -102,8 +110,7 @@
 
         (define ship (new ship%))
         PARSE-TREE
-        (provide ship)
-        (void))]))
+        (provide ship))]))
 (provide (rename-out [map-module-begin #%module-begin]))
 
 ;; }}}
@@ -130,7 +137,7 @@
            (syntax-parameter-value current-obj)]
           [current-obj
            (make-rename-transformer
-             (if (eq? chead.name "HEAD")
+             (if (string=? chead.name "HEAD")
                  #'map-expander-settings
                  chead.id))])
         cbody)]))
