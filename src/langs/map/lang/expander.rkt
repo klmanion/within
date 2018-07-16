@@ -55,6 +55,11 @@
             #'(define chead.id
                 (new chead.class [parent ship]
                                  [name chead.id-str]))]
+           [(string=? cname "PARASITE")
+            #'(define parasite
+                (new chead.class [parent (current-container)]))]
+           [(eq? (syntax-e (attribute chead.id)) #f)
+            #'(new chead.class [parent (current-container)])]
            [else
             #'(define chead.id
                 (new chead.class))]))))
@@ -73,7 +78,7 @@
       #:attr id (let* ([id-str-stx (attribute id-str)]
                        [id-str-val (syntax-e id-str-stx)])
                   (cond
-                    [(eq? id-str-val #f) #'f]
+                    [(eq? id-str-val #f) #'#f]
                     [else (format-id id-str-stx
                                      "~a"
                                      id-str-val)]))))
