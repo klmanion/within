@@ -96,8 +96,8 @@
 (define-syntax map-module-begin
   (syntax-parser
     [(_ PARSE-TREE)
-     #`(#%plain-module-begin
-        (module+ configure-runtime
+     #`(#%module-begin
+        (module configure-runtime racket/base
           (require racket/base racket/class)
           (require "ship.rkt" "room.rkt"))
         (define ship (new ship%))
