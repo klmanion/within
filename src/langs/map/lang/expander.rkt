@@ -65,10 +65,13 @@
                               (string-downcase
                                 (syntax->datum
                                   (attribute name))))
-      #:attr id (format-id (attribute id-str)
-                           "~a"
-                           (syntax->datum
-                             (attribute id-str)))))
+      #:attr id (let* ([id-str-stx (attribute id-str)]
+                       [id-str-val (syntax-e id-str-stx)])
+                  (cond
+                    [(eq? id-str-val #f) #'f]
+                    [else (format-id id-str-stx
+                                     "~a"
+                                     id-str-val)]))))
   
   (define-syntax-class clause-name
     #:literals (clause-name)
