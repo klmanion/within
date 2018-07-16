@@ -99,7 +99,7 @@
      #`(#%module-begin
         (module configure-runtime racket/base
           (require racket/base racket/class)
-          (require "ship.rkt" "room.rkt"))
+          (require map/ship.rkt map/room.rkt))
         (define ship (new ship%))
         PARSE-TREE
         (provide ship)
