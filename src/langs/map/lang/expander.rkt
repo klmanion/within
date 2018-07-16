@@ -53,7 +53,8 @@
             #'(void)]
            [(string=? cname "ROOM")
             #'(define chead.id
-                (new chead.class [parent ship]))]
+                (new chead.class [parent ship]
+                                 [name chead.id-str]))]
            [else
             #'(define chead.id
                 (new chead.class))]))))

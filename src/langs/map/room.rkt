@@ -9,7 +9,8 @@
 (define room%
   (class object%
     (super-new)
-    (init-field [name #f])
+    (init-field [parent #f]
+                [name #f])
 
 ))
 ;; }}}
