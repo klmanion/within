@@ -2,6 +2,8 @@
 (require racket/class
   racket/gui/base)
 
+(provide ship%)
+
 ;; ship% {{{
 ;
 
