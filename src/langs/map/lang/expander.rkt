@@ -47,11 +47,16 @@
     #:literals (clause)
     (pattern (clause chead:clause-head cbody:clause-body)
       #:attr define
-        (cond
-         [(string=? (syntax->datum (attribute chead.name))
-                    "HEAD")
-          #'(void)]
-         [else #'(define chead.id (new chead.class))])))
+        (let ([cname (syntax-e (attribute chead.name))])
+          (cond
+           [(string=? cname "HEAD")
+            #'(void)]
+           [(string=? cname "ROOM")
+            #'(define chead.id
+                (new chead.class [parent ship]))]
+           [else
+            #'(define chead.id
+                (new chead.class))]))))
   
   (define-splicing-syntax-class clause-head
     #:literals (clause-head)
@@ -63,8 +68,7 @@
       #:attr class (format-id (attribute name)
                               "~a%"
                               (string-downcase
-                                (syntax->datum
-                                  (attribute name))))
+                                (syntax-e (attribute name))))
       #:attr id (let* ([id-str-stx (attribute id-str)]
                        [id-str-val (syntax-e id-str-stx)])
                   (cond
