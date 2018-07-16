@@ -1,6 +1,7 @@
 #lang racket/base
 (require racket/class
-  racket/gui/base)
+  racket/gui/base
+  racket/function)
 
 (provide room%)
 
@@ -12,6 +13,9 @@
     (init-field [parent #f]
                 [name #f])
 
+    ((thunk
+      (unless (eq? parent #f)
+        (send parent add-child this))))
 ))
 ;; }}}
 
