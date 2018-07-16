@@ -46,8 +46,9 @@
   (define-syntax-class clause
     #:literals (clause)
     (pattern (clause chead:clause-head cbody:clause-body)
-      #:attr define #'(define (attribute chead.id)
-                        (new (attribute chead.class)))))
+      #:attr define #'((unless (eq? chead.name "HEAD")
+                         (define chead.id
+                           (new chead.class))))))
   
   (define-splicing-syntax-class clause-head
     #:literals (clause-head)
@@ -67,8 +68,9 @@
   
   (define-syntax-class clause-body
     #:literals (clause-body)
-    (pattern (clause-body cbl:clause-body-line ...)))
+    (pattern (clause-body cbl:expr ...)))
   
+  ;; replaced by `expr' in above syntax-class
   (define-syntax-class clause-body-line
     (pattern (:assignment))
     (pattern (:directive))
@@ -84,7 +86,7 @@
   
   (define-syntax-class directive
     #:literals (directive)
-    (pattern (directive word:str))))
+    (pattern (directive word))))
 
 ;; }}}
 
@@ -94,7 +96,7 @@
 (define-syntax map-module-begin
   (syntax-parser
     [(_ PARSE-TREE)
-     #`(#%module-begin
+     #`(#%plain-module-begin
         (module+ configure-runtime
           (require racket/base racket/class)
           (require "ship.rkt" "room.rkt"))
@@ -128,9 +130,9 @@
            (syntax-parameter-value current-obj)]
           [current-obj
            (make-rename-transformer
-             (if (eq? (attribute chead.name) "HEAD")
+             (if (eq? chead.name "HEAD")
                  #'map-expander-settings
-                 (attribute chead.id)))])
+                 chead.id))])
         cbody)]))
 (provide clause)
 
@@ -145,7 +147,7 @@
 
 (define-syntax clause-body
   (syntax-parser
-    [(cbl:clause-body-line ...) #'(begin cbl ...)]))
+    [(cbl:expr ...) #'(begin cbl ...)]))
 (provide clause-body)
 
 (define-syntax assignment
@@ -156,8 +158,8 @@
 
 (define-syntax directive
   (syntax-parser
-    [(d:directive)
-     #`(send (current-obj) d.word)]))
+    [d:directive
+     #'(send (current-obj) d.word)]))
 (provide directive)
 
 ;; }}}
