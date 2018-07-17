@@ -3,6 +3,11 @@
 (require racket/class
   racket/function)
 
+(provide parent<%> child<%>
+  parent-mixin parent%
+  child-mixin child%
+  parent-child-mixin parent-child%)
+
 (define parent<%>
   (interface ()
     valid-child?
@@ -73,5 +78,11 @@
 
 (define child%
   (child-mixin object%))
+
+(define parent-child-mixin
+  (mixin () (parent<%> child<%>)))
+
+(define parent-child%
+  (parent-child-mixin object%))
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:
