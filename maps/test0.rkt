@@ -2,6 +2,7 @@
 
 HEAD:
 
-ROOM foo:
-  on_floor
-  .x 10
+ROOM sr:
+  PARASITE:
+    on_floor
+    .x 10
