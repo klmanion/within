@@ -2,20 +2,26 @@
 (require racket/class
   racket/gui/base
   racket/function)
+(require "parent-child.rkt"
+  "entity.rkt")
 
-(provide room%)
+(provide room<%> room%)
 
 ;; room% {{{
 ;
-(define room%
-  (class object%
-    (super-new)
-    (init-field [parent #f]
-                [name #f])
+(define room<%>
+  (interface (parent<%> child<%>)
+    ))
 
-    ((thunk
-      (unless (eq? parent #f)
-        (send parent add-child this))))
+(define room%
+  (class parent-child%
+    (super-new)
+    (init-field [name #f])
+
+    (define/public valid-child?
+      (λ (child)
+        (is-a? child entity<%>)))
+    (augment valid-child?)
 ))
 ;; }}}
 

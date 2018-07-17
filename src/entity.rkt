@@ -2,11 +2,16 @@
 (require racket/class
   racket/gui/base
   racket/function)
+(require "parent-child.rkt")
 
-(provide entity%)
+(provide entity<%> entity%)
 
 ;; entity% {{{
 ;
+(define entity<%>
+  (interface (child<%>)
+    draw))
+
 (define entity%
   (class object%
     (super-new)
