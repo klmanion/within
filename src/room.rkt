@@ -14,7 +14,7 @@
     ))
 
 (define room%
-  (class parent-child%
+  (class* parent-child% (room<%>)
     (super-new)
     (init-field [name #f])
 

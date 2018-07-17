@@ -13,7 +13,7 @@
     draw))
 
 (define entity%
-  (class object%
+  (class* child% (entity<%>)
     (super-new)
     (init-field [pos-x 0] [pos-y 0]
                 [width 0] [height 0]
