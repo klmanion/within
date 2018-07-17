@@ -85,7 +85,8 @@
   (child-mixin object%))
 
 (define parent-child-mixin
-  (mixin () (parent<%> child<%>)))
+  (λ (%)
+    (parent-mixin (child-mixin %))))
 
 (define parent-child%
   (parent-child-mixin object%))

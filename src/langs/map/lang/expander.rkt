@@ -137,7 +137,7 @@
 
         (define ship (new ship%))
         (parameterize ([current-obj ship])
-          PARSE-TREE)
+          'PARSE-TREE)
         (provide ship))]))
 (provide (rename-out [map-module-begin #%module-begin]))
 
