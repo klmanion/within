@@ -111,16 +111,20 @@
 
 ;; }}}
 
-;; }}}
-
-;; #%module-begin {{{
+;; Parameters {{{
 ;
-
 
 (define current-obj (make-parameter #f))
 (define current-container (make-parameter #f))
 
 (provide current-obj current-container)
+
+;; }}}
+
+;; }}}
+
+;; #%module-begin {{{
+;
 
 (define-syntax map-module-begin
   (syntax-parser
