@@ -126,18 +126,22 @@
 ;; #%module-begin {{{
 ;
 
+(require "../../../ship.rkt"
+  "../../../room.rkt"
+  "../../../parasite.rkt")
+(provide (all-from-out "../../../ship.rkt"
+           "../../../room.rkt"
+           "../../../parasite.rkt"))
+
 (define-syntax map-module-begin
   (syntax-parser
     [(_ PARSE-TREE)
      #'(#%module-begin
         (require racket/base racket/class)
-        (require "../src/ship.rkt"
-          "../src/room.rkt"
-          "../src/parasite.rkt")
 
         (define ship (new ship%))
         (parameterize ([current-obj ship])
-          'PARSE-TREE)
+          PARSE-TREE)
         (provide ship))]))
 (provide (rename-out [map-module-begin #%module-begin]))
 
