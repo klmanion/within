@@ -10,7 +10,7 @@
 (module+ test
   (require rackunit rackunit/text-ui))
 
-(provide #%top #%app #%datum)
+(provide #%top #%app #%datum #%top-interaction)
 
 ;; map-expander-settings {{{
 ;
