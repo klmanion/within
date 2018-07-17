@@ -12,7 +12,8 @@
   (interface ()
     valid-child?
     add-child
-    remove-child))
+    remove-child
+    get-children))
 
 (define child<%>
   (interface ()
@@ -43,6 +44,10 @@
         (set! children (remove child children))
         (unless (null? bss)
           (remove-child (car bss) (cdr bss)))))
+
+    (define/public get-children
+      (λ ()
+        children))
 ))
 
 (define parent%
