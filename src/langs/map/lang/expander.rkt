@@ -116,6 +116,11 @@
 ;; #%module-begin {{{
 ;
 
+
+(define current-obj (make-parameter #f))
+(define current-container (make-parameter #f))
+(provide current-obj current-container)
+
 (define-syntax map-module-begin
   (syntax-parser
     [(_ PARSE-TREE)
@@ -125,12 +130,8 @@
           "../src/room.rkt"
           "../src/parasite.rkt")
 
-        (define current-obj (make-parameter #f))
-        (define current-container (make-parameter #f))
-        
         (define ship (new ship%))
-        (parameterize ([current-obj ship]
-                       [current-container ship])
+        (parameterize ([current-obj ship])
           PARSE-TREE)
         (provide ship))]))
 (provide (rename-out [map-module-begin #%module-begin]))
@@ -144,7 +145,8 @@
   (syntax-parser
     [(_ c:clause ...)
      #'(begin
-         c.define ...
+         (parameterize ([current-container (current-obj)])
+           c.define ...)
          c ...)]))
 (provide program)
 
