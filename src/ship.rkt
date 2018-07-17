@@ -13,7 +13,7 @@
   (class parent%
     (super-new)
 
-  (define/public valid-child?
+  (define valid-child?
     (λ (child)
       (is-a? child room<%>)))
   (augment valid-child?)

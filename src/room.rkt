@@ -18,7 +18,7 @@
     (super-new)
     (init-field [name #f])
 
-    (define/public valid-child?
+    (define valid-child?
       (λ (child)
         (is-a? child entity<%>)))
     (augment valid-child?)
