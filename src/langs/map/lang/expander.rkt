@@ -119,6 +119,7 @@
 
 (define current-obj (make-parameter #f))
 (define current-container (make-parameter #f))
+
 (provide current-obj current-container)
 
 (define-syntax map-module-begin
@@ -146,7 +147,7 @@
     [(_ c:clause ...)
      #'(begin
          (parameterize ([current-container (current-obj)])
-           c.define ...)
+           c.define ... (void))
          c ...)]))
 (provide program)
 
