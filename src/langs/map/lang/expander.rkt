@@ -119,7 +119,7 @@
     [(_ PARSE-TREE)
      #'(#%module-begin
         (require racket/base racket/class)
-        (require map/ship map/room)
+        (require "../src/ship.rkt" "../src/room.rkt")
 
         (define ship (new ship%))
         PARSE-TREE
