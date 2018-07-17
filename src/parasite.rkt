@@ -16,6 +16,12 @@
     (inherit-field pos-x pos-y
                    width height
                    color)
+    (inherit-field parent)
+
+    ;; TODO get the correct y relative to the room's coordinates
+    (define/public on-floor
+      (λ ()
+        void))  
 
     ;; Action methods {{{
     ;
