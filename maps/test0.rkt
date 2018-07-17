@@ -5,4 +5,4 @@ HEAD:
 ROOM sr:
   PARASITE:
     on_floor
-    .x 10
+    .pos-x 10
