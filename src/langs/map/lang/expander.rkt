@@ -111,10 +111,6 @@
 
 ;; }}}
 
-;; Parameters {{{
-;
-
-
 ;; }}}
 
 ;; #%module-begin {{{
@@ -125,7 +121,9 @@
     [(_ PARSE-TREE)
      #'(#%module-begin
         (require racket/base racket/class)
-        (require "../src/ship.rkt" "../src/room.rkt")
+        (require "../src/ship.rkt"
+          "../src/room.rkt"
+          "../src/parasite.rkt")
 
         (define current-obj (make-parameter #f))
         (define current-container (make-parameter #f))
