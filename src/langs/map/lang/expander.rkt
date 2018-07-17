@@ -53,7 +53,7 @@
             #'(void)]
            [(string=? cname "ROOM")
             #'(define chead.id
-                (new chead.class [parent ship]
+                (new chead.class [parent (current-container)]
                                  [name chead.id-str]))]
            [(string=? cname "PARASITE")
             #'(define parasite
@@ -82,7 +82,7 @@
                     [else (format-id id-str-stx
                                      "~a"
                                      id-str-val)]))))
-  
+ 
   (define-syntax-class clause-name
     #:literals (clause-name)
     (pattern (clause-name name)))
@@ -111,6 +111,12 @@
 
 ;; }}}
 
+;; Parameters {{{
+;
+
+
+;; }}}
+
 ;; #%module-begin {{{
 ;
 
@@ -121,8 +127,13 @@
         (require racket/base racket/class)
         (require "../src/ship.rkt" "../src/room.rkt")
 
+        (define current-obj (make-parameter #f))
+        (define current-container (make-parameter #f))
+        
         (define ship (new ship%))
-        PARSE-TREE
+        (parameterize ([current-obj ship]
+                       [current-container ship])
+          PARSE-TREE)
         (provide ship))]))
 (provide (rename-out [map-module-begin #%module-begin]))
 
@@ -130,9 +141,6 @@
 
 ;; Syntax expanders {{{
 ;
-
-(define-syntax-parameter current-obj #f)
-(define-syntax-parameter current-container #f)
 
 (define-syntax program
   (syntax-parser
@@ -145,15 +153,11 @@
 (define-syntax clause
   (syntax-parser
     [(_ chead:clause-head cbody:clause-body)
-     #'(syntax-parameterize
-         ([current-container
-           (syntax-parameter-value current-obj)]
-          [current-obj
-           (make-rename-transformer
-             (if (string=? chead.name "HEAD")
-                 #'map-expander-settings
-                 chead.id))])
-        cbody)]))
+     #'(parameterize ([current-container (current-obj)]
+                      [current-obj (if (string=? chead.name "HEAD")
+                                       map-expander-settings
+                                       chead.id)])
+         cbody)]))
 (provide clause)
 
 ;; this silences an `unbound-literal' error for the syntax class
