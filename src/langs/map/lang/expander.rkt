@@ -138,8 +138,6 @@
   (syntax-parser
     [(_ PARSE-TREE)
      #'(#%module-begin
-        (require racket/base racket/class)
-
         (define ship (new ship%))
         (parameterize ([current-obj ship])
           PARSE-TREE)

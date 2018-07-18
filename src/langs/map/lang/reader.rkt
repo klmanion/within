@@ -19,6 +19,6 @@
           #,(parse path (make-tokenizer port path))))))
 (provide (contract-out
           [rename lang-read-syntax read-syntax
-           (any/c input-port? . -> . syntax?)]))
+           ((or/c path? #f) input-port? . -> . syntax?)]))
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:
