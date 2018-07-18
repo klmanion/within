@@ -100,14 +100,15 @@
   
   (define-syntax-class assignment
     #:literals (assignment)
-    (pattern (assignment lval:expr rval:expr)))
+    (pattern (assignment lval rval)))
 
   (define-syntax-class lvalue
     #:literals (lvalue)
     (pattern (lvalue content-str:str)
       #:attr content (let* ([cnt-stx (attribute content-str)]
                             [cnt-val (syntax-e cnt-stx)])
-                       (format-id cnt-stx "~a" cnt-val))))
+                       (datum->syntax cnt-stx
+                         (format-symbol "~a" cnt-val)))))
   
   (define-syntax-class rvalue
     #:literals (rvalue)
@@ -116,9 +117,9 @@
   (define-syntax-class directive
     #:literals (directive)
     (pattern (directive word-str:str)
-      #:attr word (format-id (attribute word-str)
-                             "~a"
-                             (syntax-e (attribute word-str))))))
+      #:attr word (let* ([word-stx (attribute word-str)]
+                         [word-val (syntax-e word-stx)])
+                    (format-id word-stx "~a" word-val)))))
 
 ;; }}}
 
@@ -195,16 +196,20 @@
 (define-syntax assignment
   (syntax-parser
     [a:assignment
-     #'(set-field! a.lval (current-obj) a.rval)]))
+     #'(dynamic-set-field! (quote a.lval) (current-obj) a.rval)]))
 (provide assignment)
+
+;#'(set-field! lval (current-obj) rval))]))
 
 (define-syntax lvalue
   (syntax-parser
     [lval:lvalue #'lval.content]))
+(provide lvalue)
 
 (define-syntax rvalue
   (syntax-parser
     [rval:rvalue #'rval.content]))
+(provide rvalue)
 
 (define-syntax directive
   (syntax-parser
