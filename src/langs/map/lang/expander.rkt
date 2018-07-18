@@ -180,7 +180,10 @@
   (syntax-parser
     [(_ chead:clause-head cbody:clause-body)
      #'(parameterize ([current-container (current-obj)])
-         (let ([opt-def (if (identifier? chead.id) void (λ () chead.define))])
+         (let ([opt-def (if (identifier? chead.id)
+                            void
+                            (λ ()
+                              chead.define (void)))])
            (opt-def)
            (parameterize ([current-obj chead.id])
              cbody)))]))
