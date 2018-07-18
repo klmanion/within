@@ -199,8 +199,6 @@
      #'(dynamic-set-field! (quote a.lval) (current-obj) a.rval)]))
 (provide assignment)
 
-;#'(set-field! lval (current-obj) rval))]))
-
 (define-syntax lvalue
   (syntax-parser
     [lval:lvalue #'lval.content]))
