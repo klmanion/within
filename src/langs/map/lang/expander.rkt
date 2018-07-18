@@ -89,8 +89,9 @@
   
   (define-syntax-class clause-body
     #:literals (clause-body)
+    (pattern (clause-body))
     (pattern (clause-body cbl:expr ...)))
-  
+
   ;; replaced by `expr' in above syntax-class
   (define-syntax-class clause-body-line
     (pattern (:assignment))
@@ -180,7 +181,8 @@
 
 (define-syntax clause-body
   (syntax-parser
-    [(cbl:expr ...) #'(begin cbl ...)]))
+    [(_ cbl:expr ...) #'(begin cbl ... (void))]
+    [_ #'(void)]))
 (provide clause-body)
 
 (define-syntax assignment
