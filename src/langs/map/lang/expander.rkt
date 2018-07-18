@@ -43,6 +43,12 @@
 ;; Syntax classes {{{
 ;
 (begin-for-syntax
+  (define-syntax-class program
+    #:literals (program)
+    (pattern (pattern clause:clause ...)
+      #:attr defines
+        #'(clause.define ...)))
+
   (define-syntax-class clause
     #:literals (clause)
     (pattern (clause chead:clause-head cbody:clause-body)
@@ -62,7 +68,7 @@
             #'(new chead.class [parent (current-container)])]
            [else
             #'(define chead.id
-                (new chead.class))]))))
+                (new chead.class [parent (current-container)]))]))))
   
   (define-splicing-syntax-class clause-head
     #:literals (clause-head)
@@ -111,7 +117,7 @@
     (pattern (directive word-str:str)
       #:attr word (format-id (attribute word-str)
                              "~a"
-                             (attribute word-str))))
+                             (attribute word-str)))))
 
 ;; }}}
 
@@ -139,11 +145,14 @@
 
 (define-syntax map-module-begin
   (syntax-parser
-    [(_ PARSE-TREE)
+    [(_ PARSE-TREE:program)
      #'(#%module-begin
         (define ship (new ship%))
-        (parameterize ([current-obj ship])
-          'PARSE-TREE)
+        (parameterize* ([current-obj ship]
+                        [current-container (current-obj)])
+          PARSE-TREE.defines
+          PARSE-TREE
+          (void))
         (provide ship))]))
 (provide (rename-out [map-module-begin #%module-begin]))
 
@@ -152,13 +161,17 @@
 ;; Syntax expanders {{{
 ;
 
-(define-syntax program
+#;(define-syntax old-program
   (syntax-parser
     [(_ c:clause ...)
      #'(begin
          (parameterize ([current-container (current-obj)])
            c.define ... (void))
          c ...)]))
+(define-syntax program
+  (syntax-parser
+    [(_ c:clause ...)
+     #'(begin c ...)]))
 (provide program)
 
 (define-syntax clause
