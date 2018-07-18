@@ -108,7 +108,10 @@
   
   (define-syntax-class directive
     #:literals (directive)
-    (pattern (directive word))))
+    (pattern (directive word-str:str)
+      #:attr word (format-id (attribute word-str)
+                             "~a"
+                             (attribute word-str))))
 
 ;; }}}
 
@@ -140,7 +143,7 @@
      #'(#%module-begin
         (define ship (new ship%))
         (parameterize ([current-obj ship])
-          PARSE-TREE)
+          'PARSE-TREE)
         (provide ship))]))
 (provide (rename-out [map-module-begin #%module-begin]))
 
