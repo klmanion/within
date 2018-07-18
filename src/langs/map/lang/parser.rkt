@@ -12,8 +12,8 @@ clause-body ::= clause-body-line*
                     | directive
                     | clause
 
-assignment ::= member-id rvalue
-member-id ::= /"." word
+assignment ::= lvalue rvalue
+lvalue ::= /"." word
 rvalue ::= str
          | word
          | symbol

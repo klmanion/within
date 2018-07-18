@@ -43,12 +43,6 @@
 ;; Syntax classes {{{
 ;
 (begin-for-syntax
-  (define-syntax-class program
-    #:literals (program)
-    (pattern (pattern clause:clause ...)
-      #:attr defines
-        #'(clause.define ...)))
-
   (define-syntax-class clause
     #:literals (clause)
     (pattern (clause chead:clause-head cbody:clause-body)
@@ -106,7 +100,14 @@
   
   (define-syntax-class assignment
     #:literals (assignment)
-    (pattern (assignment member-id:id rval:rvalue)))
+    (pattern (assignment lval:expr rval:expr)))
+
+  (define-syntax-class lvalue
+    #:literals (lvalue)
+    (pattern (lvalue content-str:str)
+      #:attr content (let* ([cnt-stx (attribute content-str)]
+                            [cnt-val (syntax-e cnt-stx)])
+                       (format-id cnt-stx "~a" cnt-val))))
   
   (define-syntax-class rvalue
     #:literals (rvalue)
@@ -117,7 +118,7 @@
     (pattern (directive word-str:str)
       #:attr word (format-id (attribute word-str)
                              "~a"
-                             (attribute word-str)))))
+                             (syntax-e (attribute word-str))))))
 
 ;; }}}
 
@@ -128,8 +129,6 @@
 (define current-container (make-parameter #f))
 
 (provide current-obj current-container)
-
-;; }}}
 
 ;; }}}
 
@@ -145,12 +144,10 @@
 
 (define-syntax map-module-begin
   (syntax-parser
-    [(_ PARSE-TREE:program)
+    [(_ PARSE-TREE)
      #'(#%module-begin
         (define ship (new ship%))
-        (parameterize* ([current-obj ship]
-                        [current-container (current-obj)])
-          PARSE-TREE.defines
+        (parameterize ([current-obj ship])
           PARSE-TREE
           (void))
         (provide ship))]))
@@ -161,17 +158,13 @@
 ;; Syntax expanders {{{
 ;
 
-#;(define-syntax old-program
+(define-syntax program
   (syntax-parser
     [(_ c:clause ...)
      #'(begin
          (parameterize ([current-container (current-obj)])
-           c.define ... (void))
-         c ...)]))
-(define-syntax program
-  (syntax-parser
-    [(_ c:clause ...)
-     #'(begin c ...)]))
+           c.define ...
+           c ...))]))
 (provide program)
 
 (define-syntax clause
@@ -202,8 +195,16 @@
 (define-syntax assignment
   (syntax-parser
     [a:assignment
-     #'(set-field! a.member-id (current-obj) a.rval)]))
+     #'(set-field! a.lval (current-obj) a.rval)]))
 (provide assignment)
+
+(define-syntax lvalue
+  (syntax-parser
+    [lval:lvalue #'lval.content]))
+
+(define-syntax rvalue
+  (syntax-parser
+    [rval:rvalue #'rval.content]))
 
 (define-syntax directive
   (syntax-parser
