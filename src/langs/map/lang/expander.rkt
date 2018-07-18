@@ -46,23 +46,7 @@
   (define-syntax-class clause
     #:literals (clause)
     (pattern (clause chead:clause-head cbody:clause-body)
-      #:attr define
-        (let ([cname (syntax-e (attribute chead.name))])
-          (cond
-           [(string=? cname "HEAD")
-            #'(void)]
-           [(string=? cname "ROOM")
-            #'(define chead.id
-                (new chead.class [parent (current-container)]
-                                 [name chead.id-str]))]
-           [(string=? cname "PARASITE")
-            #'(define parasite
-                (new chead.class [parent (current-container)]))]
-           [(eq? (syntax-e (attribute chead.id)) #f)
-            #'(new chead.class [parent (current-container)])]
-           [else
-            #'(define chead.id
-                (new chead.class [parent (current-container)]))]))))
+      #:attr define (attribute chead.define)))
   
   (define-splicing-syntax-class clause-head
     #:literals (clause-head)
@@ -79,9 +63,31 @@
                        [id-str-val (syntax-e id-str-stx)])
                   (cond
                     [(eq? id-str-val #f) #'#f]
-                    [else (format-id id-str-stx
-                                     "~a"
-                                     id-str-val)]))))
+                    [(equal? (attribute name) "HEAD")
+                     #'map-expander-settings]
+                    [(equal? (attribute name) "PARASITE")
+                     #'parasite]
+                    [else (datum->syntax id-str-stx
+                            (format-id id-str-stx
+                                       "~a"
+                                       id-str-val))]))
+      #:attr define
+        (let ([cname (syntax-e (attribute name))])
+          (cond
+           [(string=? cname "HEAD")
+            #'(void)]
+           [(string=? cname "ROOM")
+            #'(define id
+                (new class [parent (current-container)]
+                           [room-name id-str]))]
+           [(string=? cname "PARASITE")
+            #'(define parasite
+                (new class [parent (current-container)]))]
+           [(eq? (syntax-e (attribute id)) #f)
+            #'(new class [parent (current-container)])]
+           [else
+            #'(define id
+                (new class [parent (current-container)]))]))))
  
   (define-syntax-class clause-name
     #:literals (clause-name)
@@ -89,8 +95,8 @@
   
   (define-syntax-class clause-body
     #:literals (clause-body)
-    (pattern (clause-body))
-    (pattern (clause-body cbl:expr ...)))
+    (pattern (clause-body cbl:expr ...))
+    (pattern (clause-body)))
 
   ;; replaced by `expr' in above syntax-class
   (define-syntax-class clause-body-line
@@ -139,6 +145,7 @@
 (require "../../../ship.rkt"
   "../../../room.rkt"
   "../../../parasite.rkt")
+(provide (all-from-out racket/class))
 (provide (all-from-out "../../../ship.rkt"
            "../../../room.rkt"
            "../../../parasite.rkt"))
@@ -148,6 +155,7 @@
     [(_ PARSE-TREE)
      #'(#%module-begin
         (define ship (new ship%))
+        (define parasite #f)
         (parameterize ([current-obj ship])
           PARSE-TREE
           (void))
@@ -171,11 +179,11 @@
 (define-syntax clause
   (syntax-parser
     [(_ chead:clause-head cbody:clause-body)
-     #'(parameterize ([current-container (current-obj)]
-                      [current-obj (if (string=? chead.name "HEAD")
-                                       map-expander-settings
-                                       chead.id)])
-         cbody)]))
+     #'(parameterize ([current-container (current-obj)])
+         (let ([opt-def (if (identifier? chead.id) void (λ () chead.define))])
+           (opt-def)
+           (parameterize ([current-obj chead.id])
+             cbody)))]))
 (provide clause)
 
 ;; this silences an `unbound-literal' error for the syntax class
