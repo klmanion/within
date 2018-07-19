@@ -7,9 +7,12 @@
 
 ;; parasite% {{{
 ;
+(define parasite<%>
+  (interface (entity<%>)
+    on-floor))
 
 (define parasite%
-  (class entity%
+  (class* entity% (parasite<%>)
     (super-new [pos-x 97] [pos-y 97]
                [width 5] [height 5]
                [color (make-object color% #xFF #xFF #xFF)])
@@ -21,7 +24,7 @@
     ;; TODO get the correct y relative to the room's coordinates
     (define/public on-floor
       (λ ()
-        void))  
+        (set! pos-y 5)))  
 
     ;; Action methods {{{
     ;

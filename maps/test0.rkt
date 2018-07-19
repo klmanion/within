@@ -4,5 +4,5 @@ HEAD:
 
 ROOM sr:
   PARASITE:
-    on_floor
+    on-floor
     .pos-x 10

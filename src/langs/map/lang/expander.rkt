@@ -3,10 +3,13 @@
 (require (for-syntax racket/base
            racket/class
            syntax/parse
-           racket/syntax))
+           racket/syntax
+           racket/splicing
+           syntax/id-table))
 (require syntax/parse
   racket/stxparam
-  racket/class)
+  racket/class
+  xrepl)
 (module+ test
   (require rackunit rackunit/text-ui))
 
@@ -47,6 +50,12 @@
     #:literals (clause)
     (pattern (clause chead:clause-head cbody:clause-body)
       #:attr define (attribute chead.define)))
+
+  (define lookup-table (make-free-id-table))
+
+  (define free-id-table-has-key?
+    (λ (tbl key)
+      (not (eq? (member key (free-id-table-keys tbl)) #f))))
   
   (define-splicing-syntax-class clause-head
     #:literals (clause-head)
@@ -62,32 +71,44 @@
       #:attr id (let* ([id-str-stx (attribute id-str)]
                        [id-str-val (syntax-e id-str-stx)])
                   (cond
-                    [(eq? id-str-val #f) #'#f]
-                    [(equal? (attribute name) "HEAD")
+                    [(string=? (syntax-e (attribute name)) "HEAD")
                      #'map-expander-settings]
-                    [(equal? (attribute name) "PARASITE")
+                    [(string=? (syntax-e (attribute name)) "PARASITE")
                      #'parasite]
+                    [(eq? id-str-val #f) #'#f]
                     [else (datum->syntax id-str-stx
                             (format-id id-str-stx
                                        "~a"
                                        id-str-val))]))
+      #:attr id-val (if (eq? (syntax-e (attribute id)) #f)
+                        #f
+                        (format-id (attribute id)
+                                   "~a"
+                                   (syntax-e (attribute id))))
       #:attr define
-        (let ([cname (syntax-e (attribute name))])
-          (cond
-           [(string=? cname "HEAD")
-            #'(void)]
-           [(string=? cname "ROOM")
-            #'(define id
-                (new class [parent (current-container)]
-                           [room-name id-str]))]
-           [(string=? cname "PARASITE")
-            #'(define parasite
-                (new class [parent (current-container)]))]
-           [(eq? (syntax-e (attribute id)) #f)
-            #'(new class [parent (current-container)])]
-           [else
-            #'(define id
-                (new class [parent (current-container)]))]))))
+        (unless (free-id-table-has-key?
+                  lookup-table
+                  (attribute id-val))
+          (let ([cname (syntax-e (attribute name))])
+            (begin0
+              (cond
+               [(string=? cname "HEAD")
+                #'(void)]
+               [(string=? cname "ROOM")
+                #'(define id
+                    (new class [parent (current-container)]
+                               [room-name id-str]))]
+               [(string=? cname "PARASITE")
+                #'(define id
+                    (new class [parent (current-container)]))]
+               [(eq? (attribute id-val) #f)
+                #'(new class [parent (current-container)])]
+               [else
+                #'(define id
+                    (new class [parent (current-container)]))])
+              (unless (eq? (attribute id-val) #f)
+                (free-id-table-set! lookup-table (attribute id-val)
+                                                 (attribute id))))))))
  
   (define-syntax-class clause-name
     #:literals (clause-name)
@@ -106,7 +127,7 @@
   
   (define-syntax-class assignment
     #:literals (assignment)
-    (pattern (assignment lval rval)))
+    (pattern (assignment lval:expr rval:expr)))
 
   (define-syntax-class lvalue
     #:literals (lvalue)
@@ -145,7 +166,8 @@
 (require "../../../ship.rkt"
   "../../../room.rkt"
   "../../../parasite.rkt")
-(provide (all-from-out racket/class))
+(provide (all-from-out racket/class
+           xrepl))
 (provide (all-from-out "../../../ship.rkt"
            "../../../room.rkt"
            "../../../parasite.rkt"))
@@ -155,9 +177,9 @@
     [(_ PARSE-TREE)
      #'(#%module-begin
         (define ship (new ship%))
-        (define parasite #f)
         (parameterize ([current-obj ship])
           PARSE-TREE
+          (display (send ship get-children))
           (void))
         (provide ship))]))
 (provide (rename-out [map-module-begin #%module-begin]))
@@ -180,13 +202,9 @@
   (syntax-parser
     [(_ chead:clause-head cbody:clause-body)
      #'(parameterize ([current-container (current-obj)])
-         (let ([opt-def (if (identifier? chead.id)
-                            void
-                            (λ ()
-                              chead.define (void)))])
-           (opt-def)
-           (parameterize ([current-obj chead.id])
-             cbody)))]))
+         chead.define ; will not define if id is already bound
+         (parameterize ([current-obj chead.id])
+           cbody))]))
 (provide clause)
 
 ;; this silences an `unbound-literal' error for the syntax class
@@ -207,12 +225,12 @@
 (define-syntax assignment
   (syntax-parser
     [a:assignment
-     #'(dynamic-set-field! (quote a.lval) (current-obj) a.rval)]))
+     #'(dynamic-set-field! a.lval (current-obj) a.rval)]))
 (provide assignment)
 
 (define-syntax lvalue
   (syntax-parser
-    [lval:lvalue #'lval.content]))
+    [lval:lvalue #''lval.content]))
 (provide lvalue)
 
 (define-syntax rvalue
