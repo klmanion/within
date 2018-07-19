@@ -3,7 +3,7 @@
   racket/gui/base)
 (require "entity.rkt")
 
-(provide parasite%)
+(provide parasite<%> parasite%)
 
 ;; parasite% {{{
 ;

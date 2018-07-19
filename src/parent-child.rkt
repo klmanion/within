@@ -18,7 +18,8 @@
 (define child<%>
   (interface ()
     orphan
-    set-parent!))
+    set-parent!
+    add-to-parent))
 
 (define parent-mixin
   (mixin () (parent<%>)
@@ -61,7 +62,7 @@
     ((thunk
        (add-to-parent)))
 
-    (define/private add-to-parent
+    (define/public add-to-parent
       (λ ()
         (unless (eq? parent #f)
           (when (is-a? parent parent<%>)

@@ -5,12 +5,16 @@
 (require "parent-child.rkt"
   "room.rkt")
 
-(provide ship%)
+(provide ship<%> ship%)
 
 ;; ship% {{{
 ;
+(define ship<%>
+  (interface (parent<%>)
+    ))
+
 (define ship%
-  (class parent%
+  (class* parent% (ship<%>)
     (super-new)
 
   (define valid-child?
