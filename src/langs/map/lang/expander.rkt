@@ -146,7 +146,15 @@
     (pattern (directive word-str:str)
       #:attr word (let* ([word-stx (attribute word-str)]
                          [word-val (syntax-e word-stx)])
-                    (format-id word-stx "~a" word-val)))))
+                    (format-id word-stx "~a" word-val))))
+
+  (define-syntax-class symbol
+    #:literals (symbol)
+    (pattern (symbol word:str)
+      #:attr datum (let* ([word-stx (attribute word)]
+                          [word-val (syntax-e word-stx)])
+                     (datum->syntax word-stx
+                       (format-symbol "~a" word-val))))))
 
 ;; }}}
 
@@ -233,9 +241,13 @@
 
 (define-syntax directive
   (syntax-parser
-    [d:directive
-     #'(send (current-obj) d.word)]))
+    [d:directive #'(send (current-obj) d.word)]))
 (provide directive)
+
+(define-syntax symbol
+  (syntax-parser
+    [sym:symbol #''sym.datum]))
+(provide symbol)
 
 ;; }}}
 
