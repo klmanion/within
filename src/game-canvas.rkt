@@ -2,31 +2,37 @@
 (require racket/class
   racket/gui/base
   racket/function)
-(require "entity.rkt"
-  "parasite.rkt")
+(require "defs.rkt"
+  "langs/map/read-map.rkt")
 
 (provide game-canvas%)
+
+;; game-canvas% {{{
+;
 
 (define game-canvas%
   (class canvas%
     (super-new [min-width 485]
                [min-height 300])
     (inherit get-dc refresh)
+    (init-field [ship #f])
     (field [player (new parasite%)]
            [visible-entity-lst '()])
     (field [refresh-timer
              (new timer% [notify-callback (thunk (send this refresh))]
                          [interval 42])])
 
-    ;; temporary
+    ;; Initialization {{{
+    ;
+
     ((thunk
-       (set! visible-entity-lst
-             (list
-               (new entity%
-                    [bm (make-object bitmap% "graphics/scientist.png"
-                                     'png/alpha)]
-                    [width 20] [height 40]
-                    [color (make-object color% #xFF #xFF #xFF)])))))
+       (when (string? ship)
+         (set! ship (read-map ship)))))
+
+    ;; }}}
+
+    ;; Callback methods {{{
+    ;
 
     (define/override on-paint
       (λ ()
@@ -48,6 +54,8 @@
               [scale (min (/ width 485)
                           (/ height 300))])
           (send dc set-scale scale scale))))
+    ;; }}}
 ))
+;; }}}
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:
