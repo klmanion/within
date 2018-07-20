@@ -1,5 +1,9 @@
 #lang racket/base
 
+(module+ test
+  (require rackunit
+    rackunit/text-ui))
+
 (require racket/class
   racket/function)
 
@@ -91,5 +95,42 @@
 
 (define parent-child%
   (parent-child-mixin object%))
+
+;; Unit tests {{{
+;
+
+(module+ test
+  (run-tests
+    (test-suite "adding children"
+      (test-suite "adding child to parent%"
+        (test-case "adding child to parent% with add-to-parent"
+          (define parent (new parent%))
+          (define child (new child% [parent parent]))
+          (send child add-to-parent)
+          (check-equal?
+            (send parent get-children)
+            (list child)))
+        (test-case "adding child to parent% implicitly"
+          (define parent (new parent%))
+          (define child (new child% [parent parent]))
+          (check-equal?
+            (send parent get-children)
+            (list child))))
+      (test-suite "adding child to parent% subclass"
+        (test-case "adding child to subclass with add-to-parent"
+          (define parent (new entity%))
+          (define child (new child% [parent parent]))
+          (send child add-to-parent)
+          (check-equal?
+            (send parent get-children)
+            (list child)))
+        (test-case "adding child to subclass implicitly"
+          (define parent (new (class parent% (super-new))))
+          (define child (new child% [parent parent]))
+          (check-equal?
+            (send parent get-children)
+            (list child)))))))
+
+;; }}}
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:
