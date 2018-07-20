@@ -5,7 +5,7 @@
   "parasite.rkt"
   "room.rkt"
   "ship.rkt")
-(provide (all-out-from "parent-child.rkt"
+(provide (all-from-out "parent-child.rkt"
            "entity.rkt"
            "parasite.rkt"
            "room.rkt"
