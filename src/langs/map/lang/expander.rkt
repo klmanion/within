@@ -174,7 +174,6 @@
         (define ship (new ship%))
         (parameterize ([current-obj ship])
           PARSE-TREE
-          (displayln (send ship get-children)) ; debug
           (void))
         (provide ship))]))
 (provide (rename-out [map-module-begin #%module-begin]))
@@ -189,7 +188,7 @@
     [(_ c:clause ...)
      #'(begin
          (parameterize ([current-container (current-obj)])
-           c.define ...
+           c.define ... ; this defines top-level room clauses
            c ...))]))
 (provide program)
 
