@@ -163,14 +163,9 @@
 ;; #%module-begin {{{
 ;
 
-(require "../../../ship.rkt"
-  "../../../room.rkt"
-  "../../../parasite.rkt")
-(provide (all-from-out racket/class
-           xrepl))
-(provide (all-from-out "../../../ship.rkt"
-           "../../../room.rkt"
-           "../../../parasite.rkt"))
+(require "../../../defs.rkt")
+(provide (all-from-out racket/class))
+(provide (all-from-out "../../../defs.rkt"))
 
 (define-syntax map-module-begin
   (syntax-parser
@@ -179,7 +174,7 @@
         (define ship (new ship%))
         (parameterize ([current-obj ship])
           PARSE-TREE
-          (display (send ship get-children))
+          (displayln (send ship get-children)) ; debug
           (void))
         (provide ship))]))
 (provide (rename-out [map-module-begin #%module-begin]))
