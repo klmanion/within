@@ -11,7 +11,7 @@
                [style '(fullscreen-button)]))
 
 (define cv (new game-canvas% [parent f]
-                             [map "maps/test.rkt"]))
+                             [ship "maps/test0.rkt"]))
 
 (module+ main
   (send f show #t))

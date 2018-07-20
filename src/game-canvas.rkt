@@ -2,9 +2,8 @@
 (require racket/class
   racket/gui/base
   racket/function)
-(require "entity.rkt"
-  "parasite.rkt"
-  "read-map.rkt")
+(require "defs.rkt"
+  "langs/map/read-map.rkt")
 
 (provide game-canvas%)
 
@@ -16,7 +15,7 @@
     (super-new [min-width 485]
                [min-height 300])
     (inherit get-dc refresh)
-    (init-field [map #f])
+    (init-field [ship #f])
     (field [player (new parasite%)]
            [visible-entity-lst '()])
     (field [refresh-timer
@@ -26,22 +25,10 @@
     ;; Initialization {{{
     ;
 
-    ;; temporary
-    #|
     ((thunk
-       (set! visible-entity-lst
-             (list
-               (new entity%
-                    [bm (make-object bitmap% "graphics/scientist.png"
-                                     'png/alpha)]
-                    [width 20] [height 40]
-                    [color (make-object color% #xFF #xFF #xFF)])))))
-    |#
+       (when (string? ship)
+         (set! ship (read-map ship)))))
 
-    ((thunk
-       (unless (eq? map #f)
-         (when (string? map)
-           (printf "~a\n" (read-map map))))))
     ;; }}}
 
     ;; Callback methods {{{
