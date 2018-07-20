@@ -4,8 +4,8 @@ HEAD:
 
 ROOM sr:
 	PARASITE:
-		.x 100
-		.y 100
+		.pos-x 100
+		.pos-y 100
 
 	DOOR:
 		.pos 'right
