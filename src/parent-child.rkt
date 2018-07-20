@@ -39,14 +39,14 @@
     (define/public add-child
       (λ (child . bss)
         (when (valid-child? child)
-          (unless (eq? (member child children) #f)
-            (set! children (append child children))))
+          (unless (member child children)
+            (set! children (cons child children))))
         (unless (null? bss)
           (add-child (car bss) (cdr bss)))))
 
     (define/public remove-child
       (λ (child . bss)
-        (set! children (remove child children))
+        (set! children (remove* (list child) children))
         (unless (null? bss)
           (remove-child (car bss) (cdr bss)))))
 
@@ -100,7 +100,7 @@
 ;
 
 (module+ test
-  (run-tests
+  (void (run-tests
     (test-suite "adding children"
       (test-suite "adding child to parent%"
         (test-case "adding child to parent% with add-to-parent"
@@ -118,7 +118,7 @@
             (list child))))
       (test-suite "adding child to parent% subclass"
         (test-case "adding child to subclass with add-to-parent"
-          (define parent (new entity%))
+          (define parent (new (class parent% (super-new))))
           (define child (new child% [parent parent]))
           (send child add-to-parent)
           (check-equal?
@@ -129,7 +129,7 @@
           (define child (new child% [parent parent]))
           (check-equal?
             (send parent get-children)
-            (list child)))))))
+            (list child))))))))
 
 ;; }}}
 
