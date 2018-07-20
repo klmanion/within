@@ -17,10 +17,6 @@
   (class* parent-child% (room<%>)
     (super-new)
     (init-field [room-name #f])
-    (inherit add-to-parent)
-
-    ((thunk
-       (add-to-parent)))
 
     (define valid-child?
       (λ (child)
