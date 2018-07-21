@@ -9,7 +9,8 @@
 
 (define door<%>
   (interface (entity<%>)
-    set-pos!))
+    set-pos!
+    is-lateral?))
 
 (define door%
   (class* entity% (door<%>)
