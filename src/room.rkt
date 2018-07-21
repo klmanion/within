@@ -25,7 +25,7 @@
     (super-new)
     (init-field [room-name #f])
     (init-field [pos-x #f] [pos-y #f])
-    (inherit-field children)
+    (inherit get-children)
 
     ;; Superclass augmentation {{{
     ;
@@ -59,7 +59,7 @@
       (λ ()
         (filter (λ (e)
                   (is-a? e door<%>))
-                children)))
+                (get-children))))
     ;; }}}
 
     ;; Mutator methods {{{
