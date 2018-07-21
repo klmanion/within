@@ -15,7 +15,8 @@
     get-name
     get-x get-y get-pos
     get-doors
-    set-x! set-y! set-unbound-x! set-unbound-y!
+    set-x! set-y! set-pos!
+    set-unbound-x! set-unbound-y! set-unbound-pos!
     positioned?
     starting-room?
     name-equal?))
@@ -72,6 +73,11 @@
       (λ (ny)
         (set! pos-y ny)))
 
+    (define/public set-pos!
+      (λ (nx ny)
+        (set-x! nx)
+        (set-y! ny)))
+
     (define/public set-unbound-x!
       (λ (nx)
         (when (eq? pos-x #f)
@@ -81,6 +87,11 @@
       (λ (ny)
         (when (eq? pos-y #f)
           (set-y! ny))))
+
+    (define/public set-unbound-pos!
+      (λ (nx ny)
+        (set-unbound-x! nx)
+        (set-unbound-y! ny)))
     ;; }}}
 
     ;; Predicates {{{
