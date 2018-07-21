@@ -23,7 +23,8 @@
   (interface ()
     orphan
     set-parent!
-    add-to-parent))
+    add-to-parent
+    get-parent))
 
 (define parent-mixin
   (mixin () (parent<%>)
@@ -84,6 +85,10 @@
           (orphan)
           (set! parent npar)
           (add-to-parent))))
+
+    (define/public get-parent
+      (λ ()
+        parent))
 ))
 
 (define child%
