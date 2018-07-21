@@ -16,10 +16,11 @@
     get-doors get-lateral-doors
     get-destinations get-lateral-destinations
     starting-room?
-    name-equal?))
+    name-equal?
+    place-neighbors))
 
 (define room%
-  (class* entity% (room<%>)
+  (class* (parent-mixin entity%) (room<%>)
     (super-new)
     (init-field [room-name #f])
     (inherit get-children)
@@ -86,6 +87,16 @@
             (and (not (null? bss))
                  (name-equal? (car bss) (cdr bss))))))
     ;; }}}
+    ;; }}}
+
+    ;; Action Methods {{{
+    ;
+    (define/public place-neighbors
+      (λ ()
+        (for-each
+          (λ (door)
+            (send door place-destination))
+          (get-lateral-destinations))))
     ;; }}}
 ))
 ;; }}}

@@ -2,21 +2,22 @@
 
 (require racket/class
   racket/gui/base)
-(require "entity.rkt"
-  "room.rkt")
+(require "entity.rkt")
 
 (provide door<%> door%)
 
 (define door<%>
   (interface (entity<%>)
     get-destination
-    set-pos!
-    is-lateral?))
+    set-place!
+    is-lateral?
+    place-destination))
 
 (define door%
   (class* entity% (door<%>)
     (super-new)
-    (init-field [dest #f] [pos 'right])
+    (init-field [dest #f] [place 'right])
+    (inherit get-parent)
 
     ;; Accessor methods {{{
     ;
@@ -27,17 +28,36 @@
  
     ;; Mutator methods {{{
     ;
-    (define/public set-pos!
-      (λ (npos)
+    (define/public set-place!
+      (λ (np)
         ;; TODO add code that sets the x,y of door relative to room size
-        (set! pos npos)))
+        (set! place np)))
     ;; }}}
 
     ;; Predicates {{{
     ;
     (define/public is-lateral?
       (λ ()
-        (not (eq? pos 'on-wall))))
+        (not (eq? place 'on-wall))))
+    ;; }}}
+
+    ;; Action methods {{{
+    ;
+    (define/public place-destination
+      (λ ()
+        (unless (send dest positioned?)
+          (let ([parent (get-parent)])
+            (unless (send parent positioned?)
+              (error 'place-destination
+                "called on a door whose parent has not been placed: ~a"
+                parent))
+            (let-values ([(x0 y0) (send parent get-pos)]
+                         [(w0) (send parent get-width)])
+              (send dest set-unbound-x! ((cond [(eq? place 'right) +]
+                                               [(eq? place 'left) -])
+                                         x0 w0))
+              (send dest set-unbound-y! y0)))
+          (send dest place-neighbors))))
     ;; }}}
 ))
 

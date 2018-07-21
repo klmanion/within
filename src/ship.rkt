@@ -11,16 +11,45 @@
 ;
 (define ship<%>
   (interface (parent<%>)
-    ))
+    get-rooms
+    get-starting-room))
 
 (define ship%
   (class* parent% (ship<%>)
     (super-new)
+    (inherit get-children)
 
-  (define valid-child?
-    (λ (child)
-      (is-a? child room<%>)))
-  (augment valid-child?)
+    ;; Superclass augmentation {{{
+    ;
+    (define valid-child?
+      (λ (child)
+        (is-a? child room<%>)))
+    (augment valid-child?)
+    ;; }}}
+
+    ;; Accessor methods {{{
+    ;
+    (define/public get-rooms
+      (λ ()
+        (filter (λ (e)
+                  (is-a? e room<%>))
+                (get-children))))
+
+    (define/public get-starting-room
+      (λ ()
+        (car (filter (λ (e)
+                       (send e starting-room?))
+                     (get-rooms)))))
+    ;; }}}
+
+    ;; Action methods {{{
+    ;
+    (define/public place-rooms
+      (λ ()
+        (let ([sr (get-starting-room)])
+          (send sr set-pos! 0 0)
+          (send sr place-neighbors))))
+    ;; }}}
 ))
 ;; }}}
 
