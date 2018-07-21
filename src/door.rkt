@@ -9,17 +9,32 @@
 
 (define door<%>
   (interface (entity<%>)
-    ))
+    set-pos!))
 
 (define door%
   (class* entity% (door<%>)
     (super-new)
-    (init-field [dest #f] [pos #f])
+    (init-field [dest #f] [pos 'right])
 
+    ;; Accessor methods {{{
+    ;
+    
+    ;; }}}
+ 
+    ;; Mutator methods {{{
+    ;
     (define/public set-pos!
       (λ (npos)
         ;; TODO add code that sets the x,y of door relative to room size
         (set! pos npos)))
+    ;; }}}
+
+    ;; Predicates {{{
+    ;
+    (define/public is-lateral?
+      (λ ()
+        (not (eq? pos 'on-wall))))
+    ;; }}}
 ))
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:
