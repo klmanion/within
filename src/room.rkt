@@ -11,21 +11,17 @@
 ;; room% {{{
 ;
 (define room<%>
-  (interface (parent<%> child<%>)
+  (interface (entity<%> parent<%>)
     get-name
-    get-x get-y get-pos
     get-doors get-lateral-doors
-    set-x! set-y! set-pos!
-    set-unbound-x! set-unbound-y! set-unbound-pos!
-    positioned?
+    get-destinations get-lateral-destinations
     starting-room?
     name-equal?))
 
 (define room%
-  (class* parent-child% (room<%>)
+  (class* entity% (room<%>)
     (super-new)
     (init-field [room-name #f])
-    (init-field [pos-x #f] [pos-y #f])
     (inherit get-children)
 
     ;; Superclass augmentation {{{
@@ -44,19 +40,7 @@
             ""
             room-name)))
 
-    (define/public get-x
-      (λ ()
-        pos-x))
-
-    (define/public get-y
-      (λ ()
-        pos-y))
-
-    (define/public get-pos
-      (λ ()
-        (values (get-x) (get-y))))
-
-    (define/public get-doors
+        (define/public get-doors
       (λ ()
         (filter (λ (e)
                   (is-a? e door<%>))
@@ -67,48 +51,28 @@
         (filter (λ (door)
                   (send door is-lateral?))
                 (get-doors))))
+
+    (define/public get-destinations
+      (λ ()
+        (map (λ (door)
+               (send door get-destination))
+             (get-doors))))
+
+    (define/public get-lateral-destinations
+      (λ ()
+        (map (λ (door)
+               (send door get-destination))
+             (get-lateral-doors))))
     ;; }}}
 
     ;; Mutator methods {{{
     ;
-    (define/public set-x!
-      (λ (nx)
-        (set! pos-x nx)))
-
-    (define/public set-y!
-      (λ (ny)
-        (set! pos-y ny)))
-
-    (define/public set-pos!
-      (λ (nx ny)
-        (set-x! nx)
-        (set-y! ny)))
-
-    (define/public set-unbound-x!
-      (λ (nx)
-        (when (eq? pos-x #f)
-          (set-x! nx))))
-
-    (define/public set-unbound-y!
-      (λ (ny)
-        (when (eq? pos-y #f)
-          (set-y! ny))))
-
-    (define/public set-unbound-pos!
-      (λ (nx ny)
-        (set-unbound-x! nx)
-        (set-unbound-y! ny)))
     ;; }}}
 
     ;; Predicates {{{
     ;
     ;; General {{{
     ;
-    (define/public positioned?
-      (λ ()
-        (and (not (eq? pos-x #f))
-             (not (eq? pos-y #f)))))
-
     (define/public starting-room?
       (λ ()
         (name-equal? "sr" "starting_room" "starting-room")))
