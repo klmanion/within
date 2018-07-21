@@ -9,6 +9,7 @@
 
 (define door<%>
   (interface (entity<%>)
+    get-destination
     set-pos!
     is-lateral?))
 
@@ -19,7 +20,9 @@
 
     ;; Accessor methods {{{
     ;
-    
+    (define/public get-destination
+      (λ ()
+        dest))
     ;; }}}
  
     ;; Mutator methods {{{
