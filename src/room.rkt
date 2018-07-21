@@ -14,7 +14,7 @@
   (interface (parent<%> child<%>)
     get-name
     get-x get-y get-pos
-    get-doors
+    get-doors get-lateral-doors
     set-x! set-y! set-pos!
     set-unbound-x! set-unbound-y! set-unbound-pos!
     positioned?
@@ -61,6 +61,12 @@
         (filter (λ (e)
                   (is-a? e door<%>))
                 (get-children))))
+
+    (define/public get-lateral-doors
+      (λ ()
+        (filter (λ (door)
+                  (send door is-lateral?))
+                (get-doors))))
     ;; }}}
 
     ;; Mutator methods {{{
