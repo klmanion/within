@@ -11,6 +11,7 @@
 (define entity<%>
   (interface (child<%>)
     get-x get-y get-pos
+    get-width get-height
     set-x! set-y! set-pos!
     set-unbound-x! set-unbound-y! set-unbound-pos!
     positioned?
@@ -49,6 +50,14 @@
     (define/public get-pos
       (λ ()
         (values (get-x) (get-y))))
+
+    (define/public get-width
+      (λ ()
+        width))
+
+    (define/public get-height
+      (λ ()
+        height))
     ;; }}}
 
     (define/private get-src-pos
