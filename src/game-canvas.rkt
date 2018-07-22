@@ -14,13 +14,12 @@
   (class canvas%
     (super-new [min-width 485]
                [min-height 300])
-    (inherit get-dc refresh)
     (init-field [ship #f])
-    (field [player (new parasite%)]
-           [visible-entity-lst '()])
+    (field [player #f])
     (field [refresh-timer
              (new timer% [notify-callback (thunk (send this refresh))]
                          [interval 42])])
+    (inherit get-dc refresh)
 
     ;; Initialization {{{
     ;
@@ -29,6 +28,9 @@
        (when (string? ship)
          (set! ship (read-map ship)))))
 
+    ((thunk
+       (when (ship? ship)
+         (set! player (send ship get-parasite)))))
     ;; }}}
 
     ;; Callback methods {{{
@@ -42,11 +44,9 @@
           (send dc clear)
 
           (unless (eq? player #f)
-            (send player draw dc))
-          (unless (null? visible-entity-lst)
-            (map (λ (entity)
-                   (send entity draw dc))
-                 visible-entity-lst)))))
+            (printf "~a\n" "player not false")
+            (send (send player get-parent) draw dc)
+            (send player draw dc)))))
 
     (define/override on-size
       (λ (width height)

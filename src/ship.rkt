@@ -5,14 +5,19 @@
 (require "parent-child.rkt"
   "room.rkt")
 
-(provide ship<%> ship%)
+(provide ship<%> ship? ship%)
 
 ;; ship% {{{
 ;
 (define ship<%>
   (interface (parent<%>)
     get-rooms
-    get-starting-room))
+    get-starting-room
+    get-parasite))
+
+(define ship?
+  (λ (o)
+    (is-a? o ship<%>)))
 
 (define ship%
   (class* parent% (ship<%>)
@@ -40,6 +45,11 @@
         (car (filter (λ (e)
                        (send e starting-room?))
                      (get-rooms)))))
+
+    (define/public get-parasite
+      (λ ()
+        (let ([sr (get-starting-room)])
+          (send sr get-parasite))))
     ;; }}}
 
     ;; Action methods {{{

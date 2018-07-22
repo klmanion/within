@@ -61,8 +61,7 @@
     #:literals (clause-head)
     (pattern (clause-head
                cname:clause-name
-               (~optional id-str:str
-                 #:defaults ([id-str #'#f])))
+               (~optional id-str:str #:defaults ([id-str #'#f])))
       #:attr name (attribute cname.name)
       #:attr class (format-id (attribute name)
                               "~a%"
@@ -86,9 +85,7 @@
                                    "~a"
                                    (syntax-e (attribute id))))
       #:attr define
-        (unless (free-id-table-has-key?
-                  lookup-table
-                  (attribute id-val))
+        (unless (free-id-table-has-key? lookup-table (attribute id-val))
           (let ([cname (syntax-e (attribute name))])
             (begin0
               (cond
@@ -155,7 +152,6 @@
                           [word-val (syntax-e word-stx)])
                      (datum->syntax word-stx
                        (format-symbol "~a" word-val))))))
-
 ;; }}}
 
 ;; Parameters {{{
@@ -184,7 +180,6 @@
           PARSE-TREE)
         (provide ship))]))
 (provide (rename-out [map-module-begin #%module-begin]))
-
 ;; }}}
 
 ;; Syntax expanders {{{
@@ -248,7 +243,6 @@
   (syntax-parser
     [sym:symbol #''sym.datum]))
 (provide symbol)
-
 ;; }}}
 
 ;; Unit tests {{{

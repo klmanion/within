@@ -4,9 +4,10 @@
   racket/function)
 (require "parent-child.rkt"
   "entity.rkt"
-  "door.rkt")
+  "door.rkt"
+  "parasite.rkt")
 
-(provide room<%> room%)
+(provide room<%> room? room%)
 
 ;; room% {{{
 ;
@@ -15,15 +16,23 @@
     get-name
     get-doors get-lateral-doors
     get-destinations get-lateral-destinations
+    get-parasite
     starting-room?
     name-equal?
     place-neighbors))
 
+(define room?
+  (λ (o)
+    (is-a? o room<%>)))
+
 (define room%
   (class* (parent-mixin entity%) (room<%>)
-    (super-new)
+    (super-new [width 200] [height 80]
+               [color (make-object color% #xFF #xFF #xFF)])
     (init-field [room-name #f])
     (inherit get-children)
+    (inherit get-x get-y get-width get-height
+             get-color)
 
     ;; Superclass augmentation {{{
     ;
@@ -41,7 +50,7 @@
             ""
             room-name)))
 
-        (define/public get-doors
+    (define/public get-doors
       (λ ()
         (filter (λ (e)
                   (is-a? e door<%>))
@@ -64,6 +73,10 @@
         (map (λ (door)
                (send door get-destination))
              (get-lateral-doors))))
+
+    (define/public get-parasite
+      (λ ()
+        (car (filter parasite? (get-children)))))
     ;; }}}
 
     ;; Mutator methods {{{
@@ -89,14 +102,27 @@
     ;; }}}
     ;; }}}
 
-    ;; Action Methods {{{
+    ;; Action methods {{{
     ;
     (define/public place-neighbors
       (λ ()
         (for-each
           (λ (door)
             (send door place-destination))
-          (get-lateral-destinations))))
+          (get-lateral-doors))))
+
+    (define/override draw
+      (λ (dc)
+        (let ([color (get-color)])
+          (send dc set-pen color 3 'solid)
+          (send dc set-brush color 'transparent)
+          (send dc draw-rectangle (get-x) (get-y)
+                                  (get-width) (get-height))
+          (let ([children (get-children)])
+            (unless (null? children)
+              (for-each (λ (e)
+                          (send e draw dc))
+                        children))))))
     ;; }}}
 ))
 ;; }}}

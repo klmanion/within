@@ -4,7 +4,7 @@
   racket/function)
 (require "parent-child.rkt")
 
-(provide entity<%> entity%)
+(provide entity<%> entity? entity%)
 
 ;; entity% {{{
 ;
@@ -12,10 +12,15 @@
   (interface (child<%>)
     get-x get-y get-pos
     get-width get-height
+    get-color
     set-x! set-y! set-pos!
     set-unbound-x! set-unbound-y! set-unbound-pos!
     positioned?
     draw))
+
+(define entity?
+  (λ (o)
+    (is-a? o entity<%>)))
 
 (define entity%
   (class* child% (entity<%>)
@@ -59,6 +64,10 @@
       (λ ()
         height))
     ;; }}}
+
+    (define/public get-color
+      (λ ()
+        color))
 
     (define/private get-src-pos
       (λ ()
@@ -121,7 +130,7 @@
         (and (not (eq? pos-x #f))
              (not (eq? pos-y #f)))))
     ;; }}}
-    
+ 
     ;; Action methods {{{
     ;
     (define/public draw
