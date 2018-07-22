@@ -249,9 +249,9 @@
 ;
 
 (module+ test
-  (run-tests
+  (void (run-tests
     (test-suite "syntax expanders"
-      )))
+      ))))
 ; }}}
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

@@ -10,14 +10,18 @@
     rackunit/text-ui)
   (void (run-tests
     (test-suite "parser"
-      (check-equal?
+      (test-equal? "parsing of test program"
         (syntax->datum
           (parse #f (apply-tokenizer-maker make-tokenizer #<<EOB
-HEAD:
+HEAD {
+}
 
-ROOM foo:
-  on_floor
-  .x 10
+ROOM foo {
+  PARASITE {
+    on-floor
+    .x 10
+  }
+}
 EOB
           )))
         '(program
@@ -27,9 +31,11 @@ EOB
            (clause
             (clause-head (clause-name "ROOM") "foo")
             (clause-body
-              (directive "on_floor")
-              (assignment (member-id "x")
-                          (rvalue 10)))))
-        "failed to parse test program")))))
+              (clause
+                (clause-head (clause-name "PARASITE"))
+                (clause-body
+                  (directive "on-floor")
+                  (assignment (member-id "x")
+                              (rvalue 10))))))))))))
   
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

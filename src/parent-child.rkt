@@ -7,34 +7,42 @@
 (require racket/class
   racket/function)
 
-(provide parent<%> child<%>
+(provide parent<%> parent? child<%> child?
   parent-mixin parent%
   child-mixin child%
   parent-child-mixin parent-child%)
 
 (define parent<%>
-  (interface ()
+  (interface ((class->interface object%))
     valid-child?
     add-child
     remove-child
     get-children))
 
+(define parent?
+  (λ (o)
+    (is-a? o parent<%>)))
+
 (define child<%>
-  (interface ()
+  (interface ((class->interface object%))
     orphan
     set-parent!
     add-to-parent
     get-parent))
 
+(define child?
+  (λ (o)
+    (is-a? o child<%>)))
+
 (define parent-mixin
-  (mixin () (parent<%>)
+  (mixin ((class->interface object%)) (parent<%>)
     (super-new)
     (init-field [children '()])
 
     (define/pubment valid-child?
       (λ (child)
         (and
-          (is-a? child child<%>)
+          (child? child)
           (inner #t valid-child? child))))
 
     (define/public add-child
@@ -60,7 +68,7 @@
   (parent-mixin object%))
 
 (define child-mixin
-  (mixin () (child<%>)
+  (mixin ((class->interface object%)) (child<%>)
     (super-new)
     (init-field [parent #f])
 
@@ -70,7 +78,7 @@
     (define/public add-to-parent
       (λ ()
         (unless (eq? parent #f)
-          (when (is-a? parent parent<%>)
+          (when (parent? parent)
             (send parent add-child this)))))
 
     (define/public orphan
@@ -81,7 +89,7 @@
 
     (define/public set-parent!
       (λ (npar)
-        (when (is-a? npar parent<%>)
+        (when (parent? npar)
           (orphan)
           (set! parent npar)
           (add-to-parent))))

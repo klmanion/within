@@ -28,7 +28,7 @@
     ;
     (define valid-child?
       (λ (child)
-        (is-a? child room<%>)))
+        (room? child)))
     (augment valid-child?)
     ;; }}}
 
@@ -37,7 +37,7 @@
     (define/public get-rooms
       (λ ()
         (filter (λ (e)
-                  (is-a? e room<%>))
+                  (room? e))
                 (get-children))))
 
     (define/public get-starting-room

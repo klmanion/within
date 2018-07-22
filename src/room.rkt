@@ -38,7 +38,7 @@
     ;
     (define valid-child?
       (λ (child)
-        (is-a? child entity<%>)))
+        (entity? child)))
     (augment valid-child?)
     ;; }}}
 

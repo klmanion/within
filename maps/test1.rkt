@@ -1,19 +1,23 @@
 #lang map
 
-HEAD:
+HEAD {
+}
 
-ROOM sr:
-	PARASITE:
+ROOM sr {
+	PARASITE {
 		.pos-x 100
 		.pos-y 100
-
-	DOOR:
+	}
+	DOOR {
 		.pos 'right
 		.dest hallway
-
-ROOM hallway:
-	DOOR:
+	}
+}
+ROOM hallway {
+	DOOR {
 		.pos 'left
 		.dest sr
+	}
+}
 
 ; vim: set ts=4 sw=4 noexpandtab tw=79:
