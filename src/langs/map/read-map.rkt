@@ -4,11 +4,11 @@
 (require "../../ship.rkt")
 
 (provide (contract-out
-           [read-map (module-path? . -> . object?)]))
+           [read-map (module-path? . -> . ship?)]))
 
-;; TODO dyn-r won't include the ship as a ship%
 (define read-map
   (λ (m)
-    (dynamic-require m 'ship)))
+    (let ([ship (dynamic-require m 'ship)])
+      ship)))
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

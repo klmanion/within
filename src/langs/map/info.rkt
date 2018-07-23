@@ -3,7 +3,7 @@
 (define collection "map")
 
 (define pdk-desc
-  "A domain specific language for reading the maps of the game Within"a)
+  "A domain specific language for reading the maps of the game Within")
 
 (define pkg-authors '(Kurt L. Manion))
 

@@ -29,7 +29,7 @@
          (set! ship (read-map ship)))))
 
     ((thunk
-       (when (object? ship) ;; TODO fix read-map, so this can become ship?
+       (when (ship? ship) ;; TODO fix read-map, so this can become ship?
          (set! player (send ship get-parasite)))))
     ;; }}}
 
