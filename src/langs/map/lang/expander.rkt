@@ -167,8 +167,10 @@
 ;; #%module-begin {{{
 ;
 
+(require racket/contract/base)
 (require "../../../defs.rkt")
-(provide (all-from-out racket/class))
+(provide (all-from-out racket/class
+           racket/contract/base))
 (provide (all-from-out "../../../defs.rkt"))
 
 (define-syntax map-module-begin
@@ -178,7 +180,8 @@
         (define ship (new ship%))
         (parameterize ([current-obj ship])
           PARSE-TREE)
-        (provide ship))]))
+        (send ship place-rooms)
+        (provide (contract-out [ship ship?])))]))
 (provide (rename-out [map-module-begin #%module-begin]))
 ;; }}}
 

@@ -1,12 +1,14 @@
 #lang racket/base
-(require racket/class)
+(require racket/class
+  racket/contract/base)
+(require "../../ship.rkt")
 
-(provide read-map)
+(provide (contract-out
+           [read-map (module-path? . -> . object?)]))
 
+;; TODO dyn-r won't include the ship as a ship%
 (define read-map
   (λ (m)
-    (let ([ship (dynamic-require m 'ship)])
-      (send ship place-rooms)
-      ship)))
+    (dynamic-require m 'ship)))
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

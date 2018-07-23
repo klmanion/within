@@ -4,6 +4,9 @@
   racket/function)
 (require "parent-child.rkt"
   "room.rkt")
+(module+ test
+  (require rackunit
+    rackunit/text-ui))
 
 (provide ship<%> ship? ship%)
 
@@ -13,7 +16,8 @@
   (interface (parent<%>)
     get-rooms
     get-starting-room
-    get-parasite))
+    get-parasite
+    place-rooms))
 
 (define ship?
   (λ (o)
@@ -61,6 +65,31 @@
           (send sr place-neighbors))))
     ;; }}}
 ))
+;; }}}
+
+;; Unit tests {{{
+;
+(module+ test
+  (require "parasite.rkt")
+  (void (run-tests
+    (test-suite "ship class"
+      (test-suite "returning parasite"
+        (test-case "returning starting room"
+          (define ship (new ship%))
+          (define sr (new room% [parent ship] [room-name "sr"]))
+          (check-eq? (send ship get-starting-room) sr))
+        (test-case "returning parasite"
+          (define ship (new ship%))
+          (define sr (new room% [parent ship] [room-name "sr"]))
+          (define parasite (new parasite% [parent sr]))
+          (check-eq? (send ship get-parasite) parasite)))
+      (test-suite "testing predicate"
+        (test-pred "with new ship%"
+          ship?
+          (new ship%))
+        (test-pred "with modified ship%"
+          ship?
+          (new ship% [children (list (new room%))])))))))
 ;; }}}
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

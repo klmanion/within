@@ -29,7 +29,7 @@
          (set! ship (read-map ship)))))
 
     ((thunk
-       (when (ship? ship)
+       (when (object? ship) ;; TODO fix read-map, so this can become ship?
          (set! player (send ship get-parasite)))))
     ;; }}}
 
@@ -44,9 +44,7 @@
           (send dc clear)
 
           (unless (eq? player #f)
-            (printf "~a\n" "player not false")
-            (send (send player get-parent) draw dc)
-            (send player draw dc)))))
+            (send (send player get-parent) draw dc)))))
 
     (define/override on-size
       (λ (width height)
