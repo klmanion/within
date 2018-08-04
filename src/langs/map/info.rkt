@@ -5,6 +5,8 @@
 (define pdk-desc
   "A domain specific language for reading the maps of the game Within")
 
+(define deps (list 'brag))
+
 (define pkg-authors '(Kurt L. Manion))
 
 (define version "v1.0.1")
