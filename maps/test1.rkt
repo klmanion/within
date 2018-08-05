@@ -9,13 +9,13 @@ ROOM sr {
 		.pos-y 100
 	}
 	DOOR {
-		.pos 'right
+		.place 'right
 		.dest hallway
 	}
 }
 ROOM hallway {
 	DOOR {
-		.pos 'left
+		.place 'left
 		.dest sr
 	}
 }
