@@ -3,6 +3,7 @@
   racket/gui/base
   racket/function)
 (require "defs.rkt"
+  "viewport/viewports.rkt"
   "langs/map/read-map.rkt")
 
 (provide game-canvas%)
@@ -14,28 +15,27 @@
   (class canvas%
     (super-new [min-width 485]
                [min-height 300])
-    (init-field [ship #f])
+    (init-field [map-path #f])
     (field [player #f])
     (field [refresh-timer
              (new timer% [notify-callback (thunk (send this refresh))]
                          [interval 42])])
+    (field [ship-camera (if (eq? map-path #f)
+                            #f
+                            (new ship-viewport%
+                                 [subject (read-map map-path)]
+                                 [aper-width 485] [aper-height 300]))])
     (inherit get-dc refresh)
 
     ;; Initialization {{{
     ;
-
     ((thunk
-       (when (string? ship)
-         (set! ship (read-map ship)))))
-
-    ((thunk
-       (when (ship? ship) ;; TODO fix read-map, so this can become ship?
-         (set! player (send ship get-parasite)))))
+       (when (ship-viewport? ship-camera)
+         (set! player (send ship-camera get-parasite)))))
     ;; }}}
 
     ;; Callback methods {{{
     ;
-
     (define/override on-paint
       (λ ()
         (let ([dc (get-dc)])
@@ -43,8 +43,8 @@
           (send dc set-smoothing 'unsmoothed)
           (send dc clear)
 
-          (unless (eq? player #f)
-            (send (send player get-parent) draw dc)))))
+          (unless (eq? ship-camera #f)
+            (send ship-camera draw dc)))))
 
     (define/override on-size
       (λ (width height)
@@ -52,6 +52,14 @@
               [scale (min (/ width 485)
                           (/ height 300))])
           (send dc set-scale scale scale))))
+
+    (define/override on-char
+      (λ (ch)
+        (case (send ch get-key-code)
+          [(left)  (send ship-camera left-callback)]
+          [(right) (send ship-camera right-callback)]
+          [(up)    (send ship-camera up-callback)]
+          [(down)  (send ship-camera down-callback)])))
     ;; }}}
 ))
 ;; }}}

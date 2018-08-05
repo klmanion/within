@@ -112,16 +112,17 @@
           (get-lateral-doors))))
 
     (define/override draw
-      (λ (dc)
-        (let ([color (get-color)])
+      (λ (dc [xo 0] [yo 0])
+        (let ([color (get-color)]
+              [x (- (get-x) xo)]
+              [y (- (get-x) yo)])
           (send dc set-pen color 3 'solid)
           (send dc set-brush color 'transparent)
-          (send dc draw-rectangle (get-x) (get-y)
-                                  (get-width) (get-height))
+          (send dc draw-rectangle x y (get-width) (get-height))
           (let ([children (get-children)])
             (unless (null? children)
               (for-each (λ (e)
-                          (send e draw dc))
+                          (send e draw dc xo yo))
                         children))))))
     ;; }}}
 ))

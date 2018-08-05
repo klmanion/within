@@ -134,12 +134,16 @@
     ;; Action methods {{{
     ;
     (define/public draw
-      (λ (dc)
+      (λ (dc [xo 0] [yo 0])
         (unless (eq? bm #f)
           (let-values ([(src-x src-y) (get-src-pos)])
-            (send dc draw-bitmap-section bm
-                     pos-x pos-y src-x src-y
-                     width height)))))
+            (let ([x (- (get-x) xo)]
+                  [y (- (get-y) yo)]
+                  [width (get-width)]
+                  [height (get-height)])
+              (send dc draw-bitmap-section bm
+                       x y src-x src-y
+                       width height))))))
     ;; }}}
 ))
 ;; }}}

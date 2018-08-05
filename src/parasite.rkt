@@ -33,12 +33,15 @@
     ;; Action methods {{{
     ;
     (define/override draw
-      (λ (dc)
-        (let ([color (get-color)])
+      (λ (dc [xo 0] [yo 0])
+        (let ([color (get-color)]
+              [x (- (get-x) xo)]
+              [y (- (get-y) yo)]
+              [width (get-width)]
+              [height (get-height)])
           (send dc set-pen color 0 'transparent)
           (send dc set-brush color 'solid)
-          (send dc draw-rectangle (get-x) (get-y)
-                                  (get-width) (get-height)))))
+          (send dc draw-rectangle x y width height))))
     ;; }}}
 ))
 ;; }}}
