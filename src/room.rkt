@@ -116,14 +116,14 @@
         (let ([color (get-color)]
               [x (- (get-x) xo)]
               [y (- (get-x) yo)])
-          (send dc set-pen color 3 'solid)
-          (send dc set-brush color 'transparent)
-          (send dc draw-rectangle x y (get-width) (get-height))
           (let ([children (get-children)])
             (unless (null? children)
               (for-each (λ (e)
                           (send e draw dc xo yo))
-                        children))))))
+                        children)))
+          (send dc set-pen color 3 'solid)
+          (send dc set-brush color 'transparent)
+          (send dc draw-rectangle x y (get-width) (get-height)))))
     ;; }}}
 ))
 ;; }}}

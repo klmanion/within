@@ -48,10 +48,10 @@
                            [(wr hr) (send room get-dimensions)]
                            [(wd hd) (get-dimensions)])
                 (let ([place (get-place)])
-                  (let ([xd (cond [(eq? place 'right) (+ xr (- wr wd))]
+                  (let ([xd (cond [(eq? place 'right) (- (+ xr wr) wd)]
                                   [(eq? place 'left) xr])]
                         [yd (cond [(or (eq? place 'right)
-                                       (eq? place 'left)) hd])])
+                                       (eq? place 'left)) (- (+ yr hr) hd)])])
                     (set-pos! xd yd))))))))
     ;; }}}
 
