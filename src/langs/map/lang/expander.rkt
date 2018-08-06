@@ -136,6 +136,12 @@
   
   (define-syntax-class rvalue
     #:literals (rvalue)
+    (pattern (rvalue content-str:str)
+      #:attr content (let* ([cnt-stx (attribute content-str)]
+                            [cnt-val (syntax-e cnt-stx)])
+                       (format-id cnt-stx
+                                  "~a"
+                                  cnt-val)))
     (pattern (rvalue content)))
   
   (define-syntax-class directive
@@ -200,9 +206,12 @@
 (define-syntax clause
   (syntax-parser
     [(_ chead:clause-head cbody:clause-body)
-     #'(parameterize ([current-container (current-obj)])
+     #`(parameterize ([current-container (current-obj)])
          chead.define ; will not define if id is already bound
-         (parameterize ([current-obj chead.id])
+         (parameterize ([current-obj
+                        #,(if (eq? (syntax-e #'chead.id) #f)
+                              #'(send (current-container) get-first-child)
+                              #'chead.id)])
            cbody))]))
 (provide clause)
 
@@ -234,7 +243,8 @@
 
 (define-syntax rvalue
   (syntax-parser
-    [rval:rvalue #'rval.content]))
+    [rval:rvalue
+     #'rval.content]))
 (provide rvalue)
 
 (define-syntax directive

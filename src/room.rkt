@@ -98,7 +98,7 @@
       (λ (str . bss)
         (or (string=? (get-name) str)
             (and (not (null? bss))
-                 (name-equal? (car bss) (cdr bss))))))
+                 (name-equal? . bss)))))
     ;; }}}
     ;; }}}
 

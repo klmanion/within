@@ -11,7 +11,7 @@
 (define entity<%>
   (interface (child<%>)
     get-x get-y get-pos
-    get-width get-height
+    get-width get-height get-dimensions
     get-color
     set-x! set-y! set-pos!
     set-unbound-x! set-unbound-y! set-unbound-pos!
@@ -56,6 +56,10 @@
       (λ ()
         (values (get-x) (get-y))))
 
+    ;; }}}
+
+    ;; Dimensional variables {{{
+    ;
     (define/public get-width
       (λ ()
         width))
@@ -63,6 +67,10 @@
     (define/public get-height
       (λ ()
         height))
+
+    (define/public get-dimensions
+      (λ ()
+        (values (get-width) (get-height))))
     ;; }}}
 
     (define/public get-color

@@ -17,7 +17,8 @@
     valid-child?
     add-child
     remove-child
-    get-children))
+    get-children
+    get-first-child))
 
 (define parent?
   (λ (o)
@@ -25,6 +26,8 @@
 
 (define child<%>
   (interface ((class->interface object%))
+    valid-parent?
+    has-valid-parent?
     orphan
     set-parent!
     add-to-parent
@@ -62,6 +65,13 @@
     (define/public get-children
       (λ ()
         children))
+
+    (define/public get-first-child
+      (λ ()
+        (let ([children (get-children)])
+          (if (null? children)
+              children
+              (car children)))))
 ))
 
 (define parent%
@@ -73,7 +83,22 @@
     (init-field [parent #f])
 
     ((thunk
+       (unless (eq? parent #f)
+         (unless (has-valid-parent?)
+           (error "invalid parent passed to" this (get-parent))))))
+
+    ((thunk
        (add-to-parent)))
+
+    (define/pubment valid-parent?
+      (λ (parent)
+        (and
+          (parent? parent)
+          (inner #t valid-parent? parent))))
+
+    (define/public has-valid-parent?
+      (λ ()
+        (valid-parent? (get-parent))))
 
     (define/public add-to-parent
       (λ ()
