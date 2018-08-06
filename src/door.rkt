@@ -13,6 +13,7 @@
 (define door<%>
   (interface (entity<%>)
     get-destination
+    get-place
     set-place!
     is-lateral?
     place-destination))
@@ -46,9 +47,12 @@
               (let-values ([(xr yr) (send room get-pos)]
                            [(wr hr) (send room get-dimensions)]
                            [(wd hd) (get-dimensions)])
-                (let ([xd (- (+ xr wr) wd)] ;; TODO add sup for left doors
-                      [yd (+ (- yr hr) hd)])
-                  (set-pos! xd yd)))))))
+                (let ([place (get-place)])
+                  (let ([xd (cond [(eq? place 'right) (+ xr (- wr wd))]
+                                  [(eq? place 'left) xr])]
+                        [yd (cond [(or (eq? place 'right)
+                                       (eq? place 'left)) hd])])
+                    (set-pos! xd yd))))))))
     ;; }}}
 
     ;; Accessor methods {{{
@@ -56,6 +60,10 @@
     (define/public get-destination
       (λ ()
         dest))
+
+    (define/public get-place
+      (λ ()
+        place))
     ;; }}}
  
     ;; Mutator methods {{{
