@@ -76,7 +76,10 @@
 
     (define/public get-parasite
       (λ ()
-        (car (filter parasite? (get-children)))))
+        (let ([psite-lst (filter parasite? (get-children))])
+          (if (null? psite-lst)
+              psite-lst
+              (car psite-lst)))))
     ;; }}}
 
     ;; Mutator methods {{{
