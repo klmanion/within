@@ -95,9 +95,8 @@
               (generate-pos)
               (let-values ([(x0 y0) (send parent get-pos)]
                            [(w0) (send parent get-width)])
-                (send dest set-unbound-x! ((cond [(eq? place 'right) +]
-                                                 [(eq? place 'left) -])
-                                           x0 w0))
+                (send dest set-unbound-x! (cond [(eq? place 'right) (+ x0 w0)]
+                                                [(eq? place 'left) x0]))
                 (send dest set-unbound-y! y0)))
             (send dest place-neighbors)))))
 
