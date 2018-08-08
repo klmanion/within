@@ -22,26 +22,22 @@
 (define ship-viewport%
   (class* viewport% (ship-viewport<%>)
     (super-new)
-    (inherit get-offset-x get-offset-y
-             get-aper-width get-aper-height)
+    (inherit get-offsets get-aper-dimensions)
     (inherit-field subject)
 
     (define/override draw
       (λ (dc)
         (for-each (λ (riv) ; room in view
-                    (let ([xo (get-offset-x)]
-                          [yo (get-offset-y)])
+                    (let-values ([(xo yo) (get-offsets)])
                       (send riv draw dc xo yo)))
                   (filter (λ (room)
-                            (let-values ([(x y) (send room get-pos)])
-                              (let* ([xo (get-offset-x)]
-                                     [yo (get-offset-y)]
-                                     [w (get-aper-width)]
-                                     [h (get-aper-height)]
-                                     [dx-m (- xo w)]
-                                     [dx-M (+ xo w)]
-                                     [dy-m (- yo h)]
-                                     [dy-M (+ yo h)])
+                            (let-values ([(x y) (send room get-pos)]
+                                         [(xo yo) (get-offsets)]
+                                         [(w h) (get-aper-dimensions)])
+                              (let ([dx-m (- xo w)]
+                                    [dx-M (+ xo w)]
+                                    [dy-m (- yo h)]
+                                    [dy-M (+ yo h)])
                                 (and
                                   (not (or (eq? x #f)
                                            (eq? y #f)))

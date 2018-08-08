@@ -92,7 +92,7 @@
       (λ (dc)
         (void)))
 
-    ;; Panning members {{{
+    ;; Panning methods {{{
     ;
     (define panning-d 10)
 

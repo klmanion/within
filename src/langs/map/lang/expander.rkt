@@ -6,18 +6,13 @@
            racket/syntax
            racket/splicing
            syntax/id-table))
-(require syntax/parse
-  racket/stxparam
-  racket/class
-  xrepl)
 (module+ test
-  (require rackunit rackunit/text-ui))
+  (require rackunit rackunit/text-ui macro-debugger/stepper))
 
 (provide #%top #%app #%datum #%top-interaction)
 
 ;; map-expander-settings {{{
 ;
-
 (define map-expander-settings
   (new
     (class object%
@@ -40,7 +35,6 @@
   
       ;; }}}
 )))
-
 ;; }}}
 
 ;; Syntax classes {{{
@@ -162,18 +156,16 @@
 
 ;; Parameters {{{
 ;
-
 (define current-obj (make-parameter #f))
 (define current-container (make-parameter #f))
 
 (provide current-obj current-container)
-
 ;; }}}
 
 ;; #%module-begin {{{
 ;
-
-(require racket/contract/base)
+(require racket/class
+  racket/contract/base)
 (require "../../../defs.rkt")
 (provide (all-from-out racket/class
            racket/contract/base))
@@ -182,18 +174,18 @@
 (define-syntax map-module-begin
   (syntax-parser
     [(_ PARSE-TREE)
+     (begin
      #'(#%module-begin
         (define ship (new ship%))
         (parameterize ([current-obj ship])
           PARSE-TREE)
         (send ship place-rooms)
-        (provide (contract-out [ship ship?])))]))
+        (provide (contract-out [ship ship?]))))]))
 (provide (rename-out [map-module-begin #%module-begin]))
 ;; }}}
 
 ;; Syntax expanders {{{
 ;
-
 (define-syntax program
   (syntax-parser
     [(_ c:clause ...)
@@ -260,10 +252,10 @@
 
 ;; Unit tests {{{
 ;
-
 (module+ test
   (void (run-tests
-    (test-suite "syntax expanders"
+    (test-suite "syntax stepper"
+      (expand-module/step "../../../../maps/test1.rkt")
       ))))
 ; }}}
 

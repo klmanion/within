@@ -13,6 +13,7 @@ ROOM sr {
 		.dest hallway
 	}
 }
+
 ROOM hallway {
 	DOOR {
 		.place 'left

@@ -33,6 +33,7 @@
     (inherit get-children)
     (inherit get-pos get-dimensions
              get-color)
+    (inherit positioned?)
 
     ;; Superclass augmentation {{{
     ;
@@ -109,7 +110,10 @@
     ;
     (define/public place-neighbors
       (λ ()
+        (printf "placing neighbors of ~a\n" (get-name))
+        (printf "with doors: ~a\n" (get-lateral-doors))
         (for-each (λ (door)
+                    (printf "calling place-dest on door ~a\n" door)
                     (send door place-destination))
                   (get-lateral-doors))))
 
@@ -120,14 +124,15 @@
             (for-each (λ (e)
                         (send e draw dc xo yo))
                       children)))
-        (let-values ([(xa ya) (get-pos)]
-                     [(w h) (get-dimensions)]
-                     [(color) (get-color)])
-          (let ([x (- xa xo)]
-                [y (- ya yo)])
-            (send dc set-pen color 3 'solid)
-            (send dc set-brush color 'transparent)
-            (send dc draw-rectangle x y w h)))))
+        (when (positioned?)
+          (let-values ([(xa ya) (get-pos)]
+                       [(w h) (get-dimensions)]
+                       [(color) (get-color)])
+            (let ([x (- xa xo)]
+                  [y (- ya yo)])
+              (send dc set-pen color 3 'solid)
+              (send dc set-brush color 'transparent)
+              (send dc draw-rectangle x y w h))))))
     ;; }}}
 ))
 ;; }}}

@@ -54,13 +54,13 @@
           (unless (member child children)
             (set! children (cons child children))))
         (unless (null? bss)
-          (add-child (car bss) (cdr bss)))))
+          (add-child . bss))))
 
     (define/public remove-child
       (λ (child . bss)
         (set! children (remove* (list child) children))
         (unless (null? bss)
-          (remove-child (car bss) (cdr bss)))))
+          (remove-child . bss))))
 
     (define/public get-children
       (λ ()

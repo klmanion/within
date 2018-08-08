@@ -46,13 +46,14 @@
               (set-pos! #f #f)
               (let-values ([(xr yr) (send room get-pos)]
                            [(wr hr) (send room get-dimensions)]
-                           [(wd hd) (get-dimensions)])
-                (let ([place (get-place)])
-                  (let ([xd (cond [(eq? place 'right) (- (+ xr wr) wd)]
-                                  [(eq? place 'left) (+ xr wd)])]
-                        [yd (cond [(or (eq? place 'right)
-                                       (eq? place 'left)) (- (+ yr hr) hd)])])
-                    (set-pos! xd yd))))))))
+                           [(wd hd) (get-dimensions)]
+                           [(place) (get-place)])
+                (let ([xd (cond [(eq? place 'right) (- (+ xr wr) wd)]
+                                [(eq? place 'left) (+ xr 1)])]
+                      [yd (cond [(or (eq? place 'right)
+                                     (eq? place 'left)) (- (+ yr hr) hd)])])
+                  (printf "generated pos (~a, ~a) mode: ~a\n" xd yd (get-place))
+                  (set-pos! xd yd)))))))
     ;; }}}
 
     ;; Accessor methods {{{
@@ -78,13 +79,17 @@
     ;
     (define/public is-lateral?
       (λ ()
-        (not (eq? place 'on-wall))))
+        (let ([place (get-place)])
+          (or (eq? place 'left)
+              (eq? place 'right)))))
     ;; }}}
 
     ;; Action methods {{{
     ;
     (define/public place-destination
       (λ ()
+        (printf "placing dest\n")
+        (generate-pos)
         (let ([dest (get-destination)])
           (unless (send dest positioned?)
             (let ([parent (get-parent)])
@@ -92,13 +97,13 @@
                 (error 'place-destination
                   "called on a door whose parent has not been placed: ~a"
                   parent))
-              (generate-pos)
               (let-values ([(x0 y0) (send parent get-pos)]
-                           [(w0) (send parent get-width)])
+                           [(w0) (send parent get-width)]
+                           [(wd) (send dest get-width)])
                 (send dest set-unbound-x! (cond [(eq? place 'right) (+ x0 w0)]
-                                                [(eq? place 'left) x0]))
-                (send dest set-unbound-y! y0)))
-            (send dest place-neighbors)))))
+                                                [(eq? place 'left) (- x0 wd)]))
+                (send dest set-unbound-y! y0)
+                (send dest place-neighbors)))))))
 
     (define/override draw
       (λ (dc [xo 0] [yo 0])
