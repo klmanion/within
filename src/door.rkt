@@ -49,7 +49,7 @@
                            [(wd hd) (get-dimensions)])
                 (let ([place (get-place)])
                   (let ([xd (cond [(eq? place 'right) (- (+ xr wr) wd)]
-                                  [(eq? place 'left) xr])]
+                                  [(eq? place 'left) (+ xr wd)])]
                         [yd (cond [(or (eq? place 'right)
                                        (eq? place 'left)) (- (+ yr hr) hd)])])
                     (set-pos! xd yd))))))))
@@ -103,11 +103,11 @@
     (define/override draw
       (λ (dc [xo 0] [yo 0])
         (when (positioned?)
-          (let-values ([(xr yr) (get-pos)]
+          (let-values ([(xa ya) (get-pos)]
                        [(w h) (get-dimensions)]
                        [(color) (get-color)])
-            (let ([x (- xr xo)]
-                  [y (- yr yo)])
+            (let ([x (- xa xo)]
+                  [y (- ya yo)])
               (send dc set-pen color 0 'transparent)
               (send dc set-brush color 'solid)
               (send dc draw-rectangle x y w h))))))

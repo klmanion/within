@@ -31,7 +31,7 @@
                [color (make-object color% #xFF #xFF #xFF)])
     (init-field [room-name #f])
     (inherit get-children)
-    (inherit get-x get-y get-width get-height
+    (inherit get-pos get-dimensions
              get-color)
 
     ;; Superclass augmentation {{{
@@ -109,24 +109,25 @@
     ;
     (define/public place-neighbors
       (λ ()
-        (for-each
-          (λ (door)
-            (send door place-destination))
-          (get-lateral-doors))))
+        (for-each (λ (door)
+                    (send door place-destination))
+                  (get-lateral-doors))))
 
     (define/override draw
       (λ (dc [xo 0] [yo 0])
-        (let ([color (get-color)]
-              [x (- (get-x) xo)]
-              [y (- (get-x) yo)])
-          (let ([children (get-children)])
-            (unless (null? children)
-              (for-each (λ (e)
-                          (send e draw dc xo yo))
-                        children)))
-          (send dc set-pen color 3 'solid)
-          (send dc set-brush color 'transparent)
-          (send dc draw-rectangle x y (get-width) (get-height)))))
+        (let ([children (get-children)])
+          (unless (null? children)
+            (for-each (λ (e)
+                        (send e draw dc xo yo))
+                      children)))
+        (let-values ([(xa ya) (get-pos)]
+                     [(w h) (get-dimensions)]
+                     [(color) (get-color)])
+          (let ([x (- xa xo)]
+                [y (- ya yo)])
+            (send dc set-pen color 3 'solid)
+            (send dc set-brush color 'transparent)
+            (send dc draw-rectangle x y w h)))))
     ;; }}}
 ))
 ;; }}}
