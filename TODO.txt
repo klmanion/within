@@ -1,0 +1,39 @@
+TODO
+
+Formatting Rules {{{
+
+All fields are seperated by a tab character.
+
+( ,_,x)	(S,A-E)	task	+tag	@context	key:val
+ ^	 	^		^		^		^			^
+ |	 	|		|		|		|			|- key-value pairs for optional info
+ |	 	|		|		|		|- site where the task must be done
+ |	 	|		|		|- project tag the task contributes to
+ |	 	|		|- name of task
+ |	 	|- priority of task
+ |- completion of task: ' '=not complete; '_'=in progress; 'x'=complete
+
+Priority of Tasks
+	S - Of the utmost urgency, significance, and complexity--only certain devs
+			can set this priority level.
+	A - Highly crucial task that opens up other tasks to be done, should not
+			be put off.
+	B - Important task that opens up other tasks, represents less time
+			investement than class A tasks, can be put off.
+	C - Adds a crucial feature that _may_ open up a few other tasks.
+	D - Adds a convenient feature that is not necessary to development.
+	E - Cleanup tasks that are done last.
+
+}}}
+
+TODO
+
+( )	(A)	flesh-out the skeleton code	+maintainence	@src
+( )	(D)	allow numeric characters in identifiers +map	@map @lexer
+( )	(C) only draw rooms the parasite can see	+room_visability +ui	@src
+( )	(B)	ability to select and move parasite	+ui +micro	@src
+( ) (B)	control groups	+ui +ctrl_groups	@src
+( )	(C)	sloped rooms	+map +room_types	@map @expander
+( )	(A)	use HEAD clause to set defaults for objects	+map +defaults	@src @map @expander
+
+vim: set ts=4 sw=4 noexpandtab tw=0:
