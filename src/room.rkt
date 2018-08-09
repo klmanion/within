@@ -110,10 +110,7 @@
     ;
     (define/public place-neighbors
       (λ ()
-        (printf "placing neighbors of ~a\n" (get-name))
-        (printf "with doors: ~a\n" (get-lateral-doors))
         (for-each (λ (door)
-                    (printf "calling place-dest on door ~a\n" door)
                     (send door place-destination))
                   (get-lateral-doors))))
 

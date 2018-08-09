@@ -15,6 +15,8 @@ ROOM sr {
 }
 
 ROOM hallway {
+	.width 400
+
 	DOOR {
 		.place 'left
 		.dest sr

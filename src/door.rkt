@@ -49,10 +49,9 @@
                            [(wd hd) (get-dimensions)]
                            [(place) (get-place)])
                 (let ([xd (cond [(eq? place 'right) (- (+ xr wr) wd)]
-                                [(eq? place 'left) (+ xr 1)])]
+                                [(eq? place 'left) xr])]
                       [yd (cond [(or (eq? place 'right)
                                      (eq? place 'left)) (- (+ yr hr) hd)])])
-                  (printf "generated pos (~a, ~a) mode: ~a\n" xd yd (get-place))
                   (set-pos! xd yd)))))))
     ;; }}}
 
@@ -88,7 +87,6 @@
     ;
     (define/public place-destination
       (λ ()
-        (printf "placing dest\n")
         (generate-pos)
         (let ([dest (get-destination)])
           (unless (send dest positioned?)

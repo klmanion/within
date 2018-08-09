@@ -45,11 +45,18 @@
     (pattern (clause chead:clause-head cbody:clause-body)
       #:attr define (attribute chead.define)))
 
-  (define lookup-table (make-free-id-table))
+  (define bound-ids '())
 
-  (define free-id-table-has-key?
-    (λ (tbl key)
-      (not (eq? (member key (free-id-table-keys tbl)) #f))))
+  (define id-bound?
+    (λ (id)
+      (and (not (eq? id #f))
+           (syntax? id)
+           (not (eq? (member (syntax-e id) bound-ids) #f)))))
+
+  (define add-id
+    (λ (id)
+      (when (syntax? id)
+        (set! bound-ids (cons (syntax-e id) bound-ids)))))
   
   (define-splicing-syntax-class clause-head
     #:literals (clause-head)
@@ -79,27 +86,27 @@
                                    "~a"
                                    (syntax-e (attribute id))))
       #:attr define
-        (unless (free-id-table-has-key? lookup-table (attribute id-val))
-          (let ([cname (syntax-e (attribute name))])
-            (begin0
-              (cond
-               [(string=? cname "HEAD")
-                #'(void)]
-               [(string=? cname "ROOM")
-                #'(define id
-                    (new class [parent (current-container)]
-                               [room-name id-str]))]
-               [(string=? cname "PARASITE")
-                #'(define id
-                    (new class [parent (current-container)]))]
-               [(eq? (attribute id-val) #f)
-                #'(new class [parent (current-container)])]
-               [else
-                #'(define id
-                    (new class [parent (current-container)]))])
-              (unless (eq? (attribute id-val) #f)
-                (free-id-table-set! lookup-table (attribute id-val)
-                                                 (attribute id))))))))
+        (if (id-bound? (attribute id-val))
+            #'(void)
+            (let ([cname (syntax-e (attribute name))])
+              (begin0
+                (cond
+                 [(string=? cname "HEAD")
+                  #'(void)]
+                 [(string=? cname "ROOM")
+                  #'(define id
+                      (new class [parent (current-container)]
+                                 [room-name id-str]))]
+                 [(string=? cname "PARASITE")
+                  #'(define id
+                      (new class [parent (current-container)]))]
+                 [(eq? (attribute id-val) #f)
+                  #'(new class [parent (current-container)])]
+                 [else
+                  #'(define id
+                      (new class [parent (current-container)]))])
+                (unless (eq? (attribute id-val) #f)
+                  (add-id (attribute id-val))))))))
  
   (define-syntax-class clause-name
     #:literals (clause-name)
