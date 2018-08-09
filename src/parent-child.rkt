@@ -7,33 +7,45 @@
 (require racket/class
   racket/function)
 
-(provide parent<%> child<%>
+(provide parent<%> parent? child<%> child?
   parent-mixin parent%
   child-mixin child%
   parent-child-mixin parent-child%)
 
 (define parent<%>
-  (interface ()
+  (interface ((class->interface object%))
     valid-child?
     add-child
     remove-child
-    get-children))
+    get-children
+    get-first-child))
+
+(define parent?
+  (λ (o)
+    (is-a? o parent<%>)))
 
 (define child<%>
-  (interface ()
+  (interface ((class->interface object%))
+    valid-parent?
+    has-valid-parent?
     orphan
     set-parent!
-    add-to-parent))
+    add-to-parent
+    get-parent))
+
+(define child?
+  (λ (o)
+    (is-a? o child<%>)))
 
 (define parent-mixin
-  (mixin () (parent<%>)
+  (mixin ((class->interface object%)) (parent<%>)
     (super-new)
     (init-field [children '()])
 
     (define/pubment valid-child?
       (λ (child)
         (and
-          (is-a? child child<%>)
+          (child? child)
           (inner #t valid-child? child))))
 
     (define/public add-child
@@ -42,34 +54,56 @@
           (unless (member child children)
             (set! children (cons child children))))
         (unless (null? bss)
-          (add-child (car bss) (cdr bss)))))
+          (add-child . bss))))
 
     (define/public remove-child
       (λ (child . bss)
         (set! children (remove* (list child) children))
         (unless (null? bss)
-          (remove-child (car bss) (cdr bss)))))
+          (remove-child . bss))))
 
     (define/public get-children
       (λ ()
         children))
+
+    (define/public get-first-child
+      (λ ()
+        (let ([children (get-children)])
+          (if (null? children)
+              children
+              (car children)))))
 ))
 
 (define parent%
   (parent-mixin object%))
 
 (define child-mixin
-  (mixin () (child<%>)
+  (mixin ((class->interface object%)) (child<%>)
     (super-new)
     (init-field [parent #f])
 
     ((thunk
+       (unless (eq? parent #f)
+         (unless (has-valid-parent?)
+           (error "invalid parent passed to" this (get-parent))))))
+
+    ((thunk
        (add-to-parent)))
+
+    (define/pubment valid-parent?
+      (λ (parent)
+        (and
+          (parent? parent)
+          (inner #t valid-parent? parent))))
+
+    (define/public has-valid-parent?
+      (λ ()
+        (valid-parent? (get-parent))))
 
     (define/public add-to-parent
       (λ ()
         (unless (eq? parent #f)
-          (when (is-a? parent parent<%>)
+          (when (parent? parent)
             (send parent add-child this)))))
 
     (define/public orphan
@@ -80,10 +114,14 @@
 
     (define/public set-parent!
       (λ (npar)
-        (when (is-a? npar parent<%>)
+        (when (parent? npar)
           (orphan)
           (set! parent npar)
           (add-to-parent))))
+
+    (define/public get-parent
+      (λ ()
+        parent))
 ))
 
 (define child%

@@ -3,7 +3,7 @@
   racket/gui/base)
 (require "entity.rkt")
 
-(provide parasite<%> parasite%)
+(provide parasite<%> parasite? parasite%)
 
 ;; parasite% {{{
 ;
@@ -11,30 +11,37 @@
   (interface (entity<%>)
     on-floor))
 
+(define parasite?
+  (λ (o)
+    (is-a? o parasite<%>)))
+
 (define parasite%
   (class* entity% (parasite<%>)
     (super-new [pos-x 97] [pos-y 97]
                [width 5] [height 5]
                [color (make-object color% #xFF #xFF #xFF)])
-    (inherit-field pos-x pos-y
-                   width height
-                   color)
-    (inherit-field parent)
+    (inherit get-parent)
+    (inherit get-color)
+    (inherit get-x get-y get-width get-height
+             set-x! set-y!)
 
-    ;; TODO get the correct y relative to the room's coordinates
     (define/public on-floor
       (λ ()
-        (set! pos-y 5)))  
+        (let ([rh (send (get-parent) get-height)])
+          (set-y! (- rh (get-width))))))
 
     ;; Action methods {{{
     ;
-
     (define/override draw
-      (λ (dc)
-        (send dc set-pen color 0 'transparent)
-        (send dc set-brush color 'solid)
-        (send dc draw-rectangle pos-x pos-y
-                                width height)))
+      (λ (dc [xo 0] [yo 0])
+        (let ([color (get-color)]
+              [x (- (get-x) xo)]
+              [y (- (get-y) yo)]
+              [width (get-width)]
+              [height (get-height)])
+          (send dc set-pen color 0 'transparent)
+          (send dc set-brush color 'solid)
+          (send dc draw-rectangle x y width height))))
     ;; }}}
 ))
 ;; }}}

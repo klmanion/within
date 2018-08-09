@@ -6,18 +6,13 @@
            racket/syntax
            racket/splicing
            syntax/id-table))
-(require syntax/parse
-  racket/stxparam
-  racket/class
-  xrepl)
 (module+ test
-  (require rackunit rackunit/text-ui))
+  (require rackunit rackunit/text-ui macro-debugger/stepper))
 
 (provide #%top #%app #%datum #%top-interaction)
 
 ;; map-expander-settings {{{
 ;
-
 (define map-expander-settings
   (new
     (class object%
@@ -40,7 +35,6 @@
   
       ;; }}}
 )))
-
 ;; }}}
 
 ;; Syntax classes {{{
@@ -51,18 +45,24 @@
     (pattern (clause chead:clause-head cbody:clause-body)
       #:attr define (attribute chead.define)))
 
-  (define lookup-table (make-free-id-table))
+  (define bound-ids '())
 
-  (define free-id-table-has-key?
-    (λ (tbl key)
-      (not (eq? (member key (free-id-table-keys tbl)) #f))))
+  (define id-bound?
+    (λ (id)
+      (and (not (eq? id #f))
+           (syntax? id)
+           (not (eq? (member (syntax-e id) bound-ids) #f)))))
+
+  (define add-id
+    (λ (id)
+      (when (syntax? id)
+        (set! bound-ids (cons (syntax-e id) bound-ids)))))
   
   (define-splicing-syntax-class clause-head
     #:literals (clause-head)
     (pattern (clause-head
                cname:clause-name
-               (~optional id-str:str
-                 #:defaults ([id-str #'#f])))
+               (~optional id-str:str #:defaults ([id-str #'#f])))
       #:attr name (attribute cname.name)
       #:attr class (format-id (attribute name)
                               "~a%"
@@ -86,29 +86,27 @@
                                    "~a"
                                    (syntax-e (attribute id))))
       #:attr define
-        (unless (free-id-table-has-key?
-                  lookup-table
-                  (attribute id-val))
-          (let ([cname (syntax-e (attribute name))])
-            (begin0
-              (cond
-               [(string=? cname "HEAD")
-                #'(void)]
-               [(string=? cname "ROOM")
-                #'(define id
-                    (new class [parent (current-container)]
-                               [room-name id-str]))]
-               [(string=? cname "PARASITE")
-                #'(define id
-                    (new class [parent (current-container)]))]
-               [(eq? (attribute id-val) #f)
-                #'(new class [parent (current-container)])]
-               [else
-                #'(define id
-                    (new class [parent (current-container)]))])
-              (unless (eq? (attribute id-val) #f)
-                (free-id-table-set! lookup-table (attribute id-val)
-                                                 (attribute id))))))))
+        (if (id-bound? (attribute id-val))
+            #'(void)
+            (let ([cname (syntax-e (attribute name))])
+              (begin0
+                (cond
+                 [(string=? cname "HEAD")
+                  #'(void)]
+                 [(string=? cname "ROOM")
+                  #'(define id
+                      (new class [parent (current-container)]
+                                 [room-name id-str]))]
+                 [(string=? cname "PARASITE")
+                  #'(define id
+                      (new class [parent (current-container)]))]
+                 [(eq? (attribute id-val) #f)
+                  #'(new class [parent (current-container)])]
+                 [else
+                  #'(define id
+                      (new class [parent (current-container)]))])
+                (unless (eq? (attribute id-val) #f)
+                  (add-id (attribute id-val))))))))
  
   (define-syntax-class clause-name
     #:literals (clause-name)
@@ -139,6 +137,12 @@
   
   (define-syntax-class rvalue
     #:literals (rvalue)
+    (pattern (rvalue content-str:str)
+      #:attr content (let* ([cnt-stx (attribute content-str)]
+                            [cnt-val (syntax-e cnt-stx)])
+                       (format-id cnt-stx
+                                  "~a"
+                                  cnt-val)))
     (pattern (rvalue content)))
   
   (define-syntax-class directive
@@ -155,41 +159,40 @@
                           [word-val (syntax-e word-stx)])
                      (datum->syntax word-stx
                        (format-symbol "~a" word-val))))))
-
 ;; }}}
 
 ;; Parameters {{{
 ;
-
 (define current-obj (make-parameter #f))
 (define current-container (make-parameter #f))
 
 (provide current-obj current-container)
-
 ;; }}}
 
 ;; #%module-begin {{{
 ;
-
+(require racket/class
+  racket/contract/base)
 (require "../../../defs.rkt")
-(provide (all-from-out racket/class))
+(provide (all-from-out racket/class
+           racket/contract/base))
 (provide (all-from-out "../../../defs.rkt"))
 
 (define-syntax map-module-begin
   (syntax-parser
     [(_ PARSE-TREE)
+     (begin
      #'(#%module-begin
         (define ship (new ship%))
         (parameterize ([current-obj ship])
           PARSE-TREE)
-        (provide ship))]))
+        (send ship place-rooms)
+        (provide (contract-out [ship ship?]))))]))
 (provide (rename-out [map-module-begin #%module-begin]))
-
 ;; }}}
 
 ;; Syntax expanders {{{
 ;
-
 (define-syntax program
   (syntax-parser
     [(_ c:clause ...)
@@ -202,9 +205,12 @@
 (define-syntax clause
   (syntax-parser
     [(_ chead:clause-head cbody:clause-body)
-     #'(parameterize ([current-container (current-obj)])
+     #`(parameterize ([current-container (current-obj)])
          chead.define ; will not define if id is already bound
-         (parameterize ([current-obj chead.id])
+         (parameterize ([current-obj
+                        #,(if (eq? (syntax-e #'chead.id) #f)
+                              #'(send (current-container) get-first-child)
+                              #'chead.id)])
            cbody))]))
 (provide clause)
 
@@ -236,7 +242,8 @@
 
 (define-syntax rvalue
   (syntax-parser
-    [rval:rvalue #'rval.content]))
+    [rval:rvalue
+     #'rval.content]))
 (provide rvalue)
 
 (define-syntax directive
@@ -248,16 +255,15 @@
   (syntax-parser
     [sym:symbol #''sym.datum]))
 (provide symbol)
-
 ;; }}}
 
 ;; Unit tests {{{
 ;
-
 (module+ test
-  (run-tests
-    (test-suite "syntax expanders"
-      )))
+  (void (run-tests
+    (test-suite "syntax stepper"
+      (expand-module/step "../../../../maps/test1.rkt")
+      ))))
 ; }}}
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

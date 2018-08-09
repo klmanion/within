@@ -1,9 +1,14 @@
 #lang racket/base
+(require racket/class
+  racket/contract/base)
+(require "../../ship.rkt")
 
-(provide read-map)
+(provide (contract-out
+           [read-map (module-path? . -> . ship?)]))
 
 (define read-map
   (λ (m)
-    (dynamic-require m 'ship)))
+    (let ([ship (dynamic-require m 'ship)])
+      ship)))
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

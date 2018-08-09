@@ -4,18 +4,28 @@
   racket/function)
 (require "parent-child.rkt")
 
-(provide entity<%> entity%)
+(provide entity<%> entity? entity%)
 
 ;; entity% {{{
 ;
 (define entity<%>
   (interface (child<%>)
+    get-x get-y get-pos
+    get-width get-height get-dimensions
+    get-color
+    set-x! set-y! set-pos!
+    set-unbound-x! set-unbound-y! set-unbound-pos!
+    positioned?
     draw))
+
+(define entity?
+  (λ (o)
+    (is-a? o entity<%>)))
 
 (define entity%
   (class* child% (entity<%>)
     (super-new)
-    (init-field [pos-x 0] [pos-y 0]
+    (init-field [pos-x #f] [pos-y #f]
                 [width 0] [height 0]
                 [color #f])
     (init-field [bm #f]
@@ -23,19 +33,51 @@
 
     ;; Initialization {{{
     ;
-
     ;; Key bitmap {{{
     ;
     ((thunk
        (key-bitmap)))
     ;; }}}
-
     ;; }}}
 
     ;; Accessor methods {{{
     ;
+    ;; Positional variables {{{
+    ;
+    (define/public get-x
+      (λ ()
+        pos-x))
 
-    (define/private src-pos
+    (define/public get-y
+      (λ ()
+        pos-y))
+
+    (define/public get-pos
+      (λ ()
+        (values (get-x) (get-y))))
+
+    ;; }}}
+
+    ;; Dimensional variables {{{
+    ;
+    (define/public get-width
+      (λ ()
+        width))
+
+    (define/public get-height
+      (λ ()
+        height))
+
+    (define/public get-dimensions
+      (λ ()
+        (values (get-width) (get-height))))
+    ;; }}}
+
+    (define/public get-color
+      (λ ()
+        color))
+
+    (define/private get-src-pos
       (λ ()
         (let ([src-x (* stage width)]
               [src-y (* form height)])
@@ -44,6 +86,36 @@
 
     ;; Mutator methods {{{
     ;
+    ;; Positional variables {{{
+    ;
+    (define/public set-x!
+      (λ (nx)
+        (set! pos-x nx)))
+
+    (define/public set-y!
+      (λ (ny)
+        (set! pos-y ny)))
+
+    (define/public set-pos!
+      (λ (nx ny)
+        (set-x! nx)
+        (set-y! ny)))
+
+    (define/public set-unbound-x!
+      (λ (nx)
+        (when (eq? pos-x #f)
+          (set-x! nx))))
+
+    (define/public set-unbound-y!
+      (λ (ny)
+        (when (eq? pos-y #f)
+          (set-y! ny))))
+
+    (define/public set-unbound-pos!
+      (λ (nx ny)
+        (set-unbound-x! nx)
+        (set-unbound-y! ny)))
+    ;; }}}
 
     (define/private key-bitmap
       (λ ([color color])
@@ -58,16 +130,28 @@
                            (not (= (send oclr alpha) 0)))
                   (send bm-dc set-pixel x y color))))))))
     ;; }}}
-    
+
+    ;; Predicates {{{
+    ;
+    (define/public positioned?
+      (λ ()
+        (and (not (eq? pos-x #f))
+             (not (eq? pos-y #f)))))
+    ;; }}}
+ 
     ;; Action methods {{{
     ;
     (define/public draw
-      (λ (dc)
+      (λ (dc [xo 0] [yo 0])
         (unless (eq? bm #f)
-          (let-values ([(src-x src-y) (src-pos)])
-            (send dc draw-bitmap-section bm
-                     pos-x pos-y src-x src-y
-                     width height)))))
+          (let-values ([(src-x src-y) (get-src-pos)])
+            (let ([x (- (get-x) xo)]
+                  [y (- (get-y) yo)]
+                  [width (get-width)]
+                  [height (get-height)])
+              (send dc draw-bitmap-section bm
+                       x y src-x src-y
+                       width height))))))
     ;; }}}
 ))
 ;; }}}

@@ -3,11 +3,11 @@ program ::= clause*
 
 clause ::= clause-head clause-body
 
-clause-head ::= clause-name [id] /":"
+clause-head ::= clause-name [id]
 clause-name ::= ucase-word
 @id ::= word
 
-clause-body ::= clause-body-line*
+clause-body ::= /"{" clause-body-line* /"}"
 @clause-body-line ::= assignment
                     | directive
                     | clause

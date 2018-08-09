@@ -9,6 +9,8 @@
 
 (define pkg-authors '(Kurt L. Manion))
 
-(define version "v0.2.1")
+(define version "v0.3.0")
+
+(define deps (list "map"))
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:
