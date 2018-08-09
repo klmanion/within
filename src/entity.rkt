@@ -1,10 +1,11 @@
 #lang racket/base
 (require racket/class
+  racket/contract
   racket/gui/base
   racket/function)
 (require "parent-child.rkt")
 
-(provide entity<%> entity? entity%)
+(provide entity<%> entity? entity/c entity%)
 
 ;; entity% {{{
 ;
@@ -22,22 +23,53 @@
   (λ (o)
     (is-a? o entity<%>)))
 
-(define entity%
+(define entity/c
+  (is-a?/c entity<%>))
+
+(define/contract entity%
+  (class/c
+    (init-field [pos-x (or/c false/c real?)]
+                [pos-y (or/c false/c real?)]
+                [width (or/c zero? (and/c real? positive?))]
+                [height (or/c zero? (and/c real? positive?))])
+    (init-field [bm (or/c false/c (is-a?/c bitmap%))]
+                [form (or/c zero? (and/c real? positive?))]
+                [stage (or/c zero? (and/c real? positive?))]
+                [stage-limit (or/c false/c (and/c real? positive?))]
+                [color (or/c false/c (is-a?/c color%))])
+    get-x get-y get-pos
+    get-width get-height get-dimensions
+    get-color
+    [set-x! ((or/c false/c real?) . ->m . any)]
+    [set-y! ((or/c false/c real?) . ->m . any)]
+    [set-pos! (->m (or/c false/c real?) (or/c false/c real?) any)]
+
+    [set-unbound-x! ((or/c false/c real?) . ->m . any)]
+    [set-unbound-y! ((or/c false/c real?) . ->m . any)]
+    [set-unbound-pos! ((or/c false/c real?) (or/c false/c real?) . ->m . any)]
+
+    [set-width! (->m (or/c zero? (and/c real? positive?)) any)]
+    [set-height! (->m (or/c zero? (and/c real? positive?)) any)]
+    [set-dimensions! (->m (or/c zero? (and/c real? positive?))
+                          (or/c zero? (and/c real? positive?))
+                          any)]
+
+    [positioned? (->m boolean?)]
+
+    [draw (->*m ((is-a?/c dc<%>)) (real? real?) any)])
+
   (class* child% (entity<%>)
     (super-new)
     (init-field [pos-x #f] [pos-y #f]
-                [width 0] [height 0]
-                [color #f])
+                [width 0] [height 0])
     (init-field [bm #f]
-                [form 0] [stage 0])
+                [form 0] [stage 0] [stage-limit #f]
+                [color #f])
 
     ;; Initialization {{{
     ;
-    ;; Key bitmap {{{
-    ;
     ((thunk
        (key-bitmap)))
-    ;; }}}
     ;; }}}
 
     ;; Accessor methods {{{
@@ -73,15 +105,37 @@
         (values (get-width) (get-height))))
     ;; }}}
 
-    (define/public get-color
+    ;; Sprite variables {{{
+    ;
+    (define/private get-bitmap
       (λ ()
-        color))
+        bm))
+
+    (define/private get-form
+      (λ ()
+        form))
+
+    (define/private get-stage
+      (λ ()
+        stage))
+
+    (define/private get-stage-limit
+      (λ ()
+        stage-limit))
 
     (define/private get-src-pos
       (λ ()
-        (let ([src-x (* stage width)]
-              [src-y (* form height)])
-          (values src-x src-y))))
+        (let-values ([(w h) (get-dimensions)]
+                     [(form) (get-form)]
+                     [(stage) (get-stage)])
+          (let ([src-x (* stage w)]
+                [src-y (* form h)])
+            (values src-x src-y)))))
+
+    (define/public get-color
+      (λ ()
+        color))
+    ;; }}}
     ;; }}}
 
     ;; Mutator methods {{{
@@ -117,18 +171,54 @@
         (set-unbound-y! ny)))
     ;; }}}
 
+    ;; Dimensional variables {{{
+    ;
+    (define/public set-width!
+      (λ (nw)
+        (set! width nw)))
+
+    (define/public set-height!
+      (λ (nh)
+        (set! height nh)))
+
+    (define/public set-dimensions!
+      (λ (nw nh)
+        (set-width! nw)
+        (set-height! nh)))
+    ;; }}}
+
+    ;; Sprite variables {{{
+    ;
+    (define/private set-form!
+      (λ (nf)
+        (when (>= nf 0)
+          (set! form nf))))
+
+    (define/private set-stage!
+      (λ (ns)
+        (when (>= ns 0)
+          (set! stage ns))))
+
+    (define/private set-stage-limit!
+      (λ (nsl)
+        (when (or (eq? nsl #f)
+                  (>= nsl 0))
+          (set! stage-limit nsl))))
+
     (define/private key-bitmap
-      (λ ([color color])
-        (unless (or (eq? bm #f)
-                    (eq? color #f))
-          (let ([bm-dc (new bitmap-dc% [bitmap bm])]
-                [oclr (new color%)])
-            (let-values ([(w h) (send bm-dc get-size)])
-              (for* ([x (in-range w)]
-                     [y (in-range h)])
-                (when (and (send bm-dc get-pixel x y oclr)
-                           (not (= (send oclr alpha) 0)))
-                  (send bm-dc set-pixel x y color))))))))
+      (λ ([color (get-color)])
+        (let ([bm (get-bitmap)])
+          (unless (or (eq? bm #f)
+                      (eq? color #f))
+            (let ([bm-dc (new bitmap-dc% [bitmap bm])]
+                  [oclr (new color%)])
+              (let-values ([(w h) (send bm-dc get-size)])
+                (for* ([x (in-range w)]
+                       [y (in-range h)])
+                  (when (and (send bm-dc get-pixel x y oclr)
+                             (not (= (send oclr alpha) 0)))
+                    (send bm-dc set-pixel x y color)))))))))
+    ;; }}}
     ;; }}}
 
     ;; Predicates {{{
@@ -143,15 +233,15 @@
     ;
     (define/public draw
       (λ (dc [xo 0] [yo 0])
-        (unless (eq? bm #f)
-          (let-values ([(src-x src-y) (get-src-pos)])
-            (let ([x (- (get-x) xo)]
-                  [y (- (get-y) yo)]
-                  [width (get-width)]
-                  [height (get-height)])
-              (send dc draw-bitmap-section bm
-                       x y src-x src-y
-                       width height))))))
+        (let ([bm (get-bitmap)])
+          (unless (eq? bm #f)
+            (let-values ([(src-x src-y) (get-src-pos)]
+                         [(w h) (get-dimensions)])
+              (let ([x (- (get-x) xo)]
+                    [y (- (get-y) yo)])
+                (send dc draw-bitmap-section bm
+                         x y src-x src-y
+                         w h)))))))
     ;; }}}
 ))
 ;; }}}
