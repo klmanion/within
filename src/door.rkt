@@ -12,9 +12,8 @@
 ;
 (define door<%>
   (interface (entity<%>)
-    get-destination
-    get-place
-    set-place!
+    get-destination get-place
+    set-destination! set-place!
     is-lateral?
     place-destination))
 
@@ -68,10 +67,15 @@
  
     ;; Mutator methods {{{
     ;
+    (define/public set-destination!
+      (λ (ndest)
+        (when (identifier? ndest)
+          (set! dest ndest))))
+
     (define/public set-place!
       (λ (np)
-        ;; TODO add code that sets the x,y of door relative to room size
-        (set! place np)))
+        (set! place np)
+        (generate-pos)))
     ;; }}}
 
     ;; Predicates {{{
