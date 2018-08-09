@@ -2,29 +2,17 @@
 (require racket/class
   racket/gui/base
   racket/function)
-(require "parent-child.rkt"
+(require "room-h.rkt"
+  "parent-child.rkt"
   "entity.rkt"
   "door.rkt"
   "parasite.rkt")
 
-(provide room<%> room? room%)
+(provide room%
+  (all-from-out "room-h.rkt"))
 
 ;; room% {{{
 ;
-(define room<%>
-  (interface (entity<%> parent<%>)
-    get-name
-    get-doors get-lateral-doors
-    get-destinations get-lateral-destinations
-    get-parasite
-    starting-room?
-    name-equal?
-    place-neighbors))
-
-(define room?
-  (λ (o)
-    (is-a? o room<%>)))
-
 (define room%
   (class* (parent-mixin entity%) (room<%>)
     (super-new [width 200] [height 80]

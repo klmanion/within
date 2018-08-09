@@ -3,29 +3,14 @@
   racket/contract
   racket/gui/base
   racket/function)
-(require "parent-child.rkt")
+(require "entity-h.rkt"
+  "parent-child.rkt")
 
-(provide entity<%> entity? entity/c entity%)
+(provide entity%
+  (all-from-out "entity-h.rkt"))
 
 ;; entity% {{{
 ;
-(define entity<%>
-  (interface (child<%>)
-    get-x get-y get-pos
-    get-width get-height get-dimensions
-    get-color
-    set-x! set-y! set-pos!
-    set-unbound-x! set-unbound-y! set-unbound-pos!
-    positioned?
-    draw))
-
-(define entity?
-  (λ (o)
-    (is-a? o entity<%>)))
-
-(define entity/c
-  (is-a?/c entity<%>))
-
 (define/contract entity%
   (class/c
     (init-field [pos-x (or/c false/c real?)]

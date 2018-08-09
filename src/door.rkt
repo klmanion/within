@@ -1,27 +1,30 @@
 #lang racket/base
 
 (require racket/class
+  racket/contract
   racket/gui/base
   racket/function
   racket/syntax)
-(require "entity.rkt")
+(require "door-h.rkt"
+  "room-h.rkt"
+  "entity.rkt")
 
-(provide door<%> door? door%)
+(provide door%
+  (all-from-out "door-h.rkt"))
 
 ;; door% {{{
 ;
-(define door<%>
-  (interface (entity<%>)
-    get-destination get-place
-    set-destination! set-place!
-    is-lateral?
-    place-destination))
-
-(define door?
-  (λ (o)
-    (is-a? o door<%>)))
-
-(define door%
+(define/contract door%
+  (class/c
+    (init-field [dest (or/c false/c room/c)]
+                [place place/c])
+    get-destination
+    get-place
+    [set-destination! ((or/c false/c room/c) . ->m . any)]
+    [set-place! (place/c . ->m . any)]
+    [is-lateral? (->m boolean?)]
+    [place-destination (->m any)]
+    [draw (->*m ((is-a?/c dc<%>)) (real? real?) any)])
   (class* entity% (door<%>)
     (super-new [width 3] [height 30]
                [color (make-object color% #xFF #xFF #xFF)])
