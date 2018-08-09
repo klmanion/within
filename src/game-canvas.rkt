@@ -24,7 +24,7 @@
                             #f
                             (new ship-viewport%
                                  [subject (read-map map-path)]
-                                 [aper-width 485] [aper-height 300]))])
+                                 [aper-width min-width] [aper-height min-height]))])
     (inherit get-dc refresh)
 
     ;; Initialization {{{
