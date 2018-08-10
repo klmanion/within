@@ -14,14 +14,14 @@ clause-body ::= /"{" clause-body-line* /"}"
 
 assignment ::= lvalue rvalue
 lvalue ::= /"." word
-rvalue ::= str
+rvalue ::= str-lit
          | word
          | symbol
          | number
 
 directive ::= word
 
-@str ::= STR-TOK
+@str-lit ::= STR-LIT-TOK
 @ucase-word ::= UCASE-WORD-TOK
 @word ::= WORD-TOK
 symbol ::= /"'" word
