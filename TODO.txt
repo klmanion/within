@@ -28,7 +28,7 @@ Priority of Tasks
 
 TODO
 
-(_)	(A)	flesh-out the skeleton code	+maintainence	@src
+(x)	(A)	flesh-out the skeleton code	+maintainence	@src
 ( )	(D)	allow numeric characters in identifiers +map	@map @lexer
 ( )	(C) only draw rooms the parasite can see	+room_visability +ui	@src
 ( )	(B)	ability to select and move parasite	+ui +micro	@src

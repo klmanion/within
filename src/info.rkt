@@ -9,7 +9,7 @@
 
 (define pkg-authors '(Kurt L. Manion))
 
-(define version "v0.3.0")
+(define version "v0.4.0")
 
 (define deps (list "map"))
 
