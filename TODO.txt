@@ -31,7 +31,7 @@ TODO
 (x)	(A)	flesh-out the skeleton code	+maintainence	@src
 (x)	(D)	allow numeric characters in identifiers +map	@map @lexer
 ( )	(C) only draw rooms the parasite can see	+room_visability +ui	@src
-( )	(B)	ability to select and move parasite	+ui +micro	@src
+(_)	(B)	ability to select and move parasite	+ui +micro	@src
 ( ) (B)	control groups	+ui +ctrl_groups	@src
 ( )	(C)	sloped rooms	+map +room_types	@map @expander
 ( )	(A)	use HEAD clause to set defaults for objects	+map +defaults	@src @map @expander
