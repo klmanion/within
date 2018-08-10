@@ -4,7 +4,7 @@
 (require "../../ship.rkt")
 
 (provide (contract-out
-           [read-map (module-path? . -> . ship?)]))
+           [read-map (module-path? . -> . ship/c)]))
 
 (define read-map
   (λ (m)

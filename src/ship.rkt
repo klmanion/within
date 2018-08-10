@@ -1,5 +1,6 @@
 #lang racket/base
 (require racket/class
+  racket/contract
   racket/gui/base
   racket/function)
 (require "parent-child.rkt"
@@ -8,7 +9,7 @@
   (require rackunit
     rackunit/text-ui))
 
-(provide ship<%> ship? ship%)
+(provide ship<%> ship? ship/c ship%)
 
 ;; ship% {{{
 ;
@@ -23,7 +24,16 @@
   (λ (o)
     (is-a? o ship<%>)))
 
-(define ship%
+(define ship/c
+  (is-a?/c ship<%>))
+
+(define/contract ship%
+  (class/c
+    get-rooms
+    get-starting-room
+    get-parasite
+    [place-rooms (->m any)])
+
   (class* parent% (ship<%>)
     (super-new)
     (inherit get-children)
