@@ -7,7 +7,7 @@
   "../room.rkt"
   "../entity.rkt")
 
-(provide ship-viewport<%> ship-viewport? ship-viewport%)
+(provide ship-viewport<%> ship-viewport? ship-viewport/c ship-viewport%)
 
 ;; ship-viewport% {{{
 ;
@@ -18,6 +18,9 @@
 (define ship-viewport?
   (λ (o)
     (is-a? o ship-viewport<%>)))
+
+(define ship-viewport/c
+  (is-a?/c ship-viewport<%>))
 
 (define ship-viewport%
   (class* viewport% (ship-viewport<%>)

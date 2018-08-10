@@ -5,7 +5,7 @@
   racket/function)
 (require "../entity.rkt")
 
-(provide viewport<%> viewport? viewport%)
+(provide viewport<%> viewport? viewport/c viewport%)
 
 ;; viewport% {{{
 ;
@@ -23,6 +23,9 @@
 (define viewport?
   (λ (o)
     (is-a? o viewport<%>)))
+
+(define viewport/c
+  (is-a?/c viewport<%>))
 
 (define/contract viewport%
   (class/c
