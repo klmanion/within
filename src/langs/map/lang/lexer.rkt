@@ -10,12 +10,12 @@
     [(from/to "/*" "*/")
      (token 'COMMENT-TOK lexeme #:skip? #t)]
     [(from/to "\"" "\"")
-     (token 'STR-TOK (trim-ends "\"" lexeme "\""))]
+     (token 'STR-LIT-TOK (trim-ends "\"" lexeme "\""))]
     [(:: upper-case
          (:* (union upper-case "_" "-")))
      (token 'UCASE-WORD-TOK lexeme)]
     [(:: alphabetic
-         (:* (union alphabetic "_" "-")))
+         (:* (union alphabetic numeric "_" "-")))
      (token 'WORD-TOK lexeme)]
     [(:+ numeric)
      (token 'INT-TOK (string->number lexeme))]

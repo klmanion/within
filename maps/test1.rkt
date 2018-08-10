@@ -6,7 +6,7 @@ HEAD {
 ROOM sr {
 	PARASITE {
 		.pos-x 100
-		.pos-y 100
+		on-floor
 	}
 	DOOR {
 		.place 'right
