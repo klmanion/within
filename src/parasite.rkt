@@ -1,9 +1,10 @@
 #lang racket/base
 (require racket/class
+  racket/contract
   racket/gui/base)
 (require "entity.rkt")
 
-(provide parasite<%> parasite? parasite%)
+(provide parasite<%> parasite? parasite/c parasite%)
 
 ;; parasite% {{{
 ;
@@ -15,7 +16,13 @@
   (λ (o)
     (is-a? o parasite<%>)))
 
-(define parasite%
+(define parasite/c
+  (is-a?/c parasite<%>))
+
+(define/contract parasite%
+  (class/c
+    [on-floor (->m any)]
+    [draw (->*m ((is-a?/c dc<%>)) (real? real?) any)])
   (class* entity% (parasite<%>)
     (super-new [pos-x 97] [pos-y 97]
                [width 5] [height 5]
