@@ -1,28 +1,30 @@
 #lang racket/base
 
 (require racket/class
+  racket/contract
   racket/gui/base
   racket/function
   racket/syntax)
-(require "entity.rkt")
+(require "door-h.rkt"
+  "room-h.rkt"
+  "entity.rkt")
 
-(provide door<%> door? door%)
+(provide door%
+  (all-from-out "door-h.rkt"))
 
 ;; door% {{{
 ;
-(define door<%>
-  (interface (entity<%>)
+(define/contract door%
+  (class/c
+    (init-field [dest (or/c false/c room/c)]
+                [place place/c])
     get-destination
     get-place
-    set-place!
-    is-lateral?
-    place-destination))
-
-(define door?
-  (λ (o)
-    (is-a? o door<%>)))
-
-(define door%
+    [set-destination! ((or/c false/c room/c) . ->m . any)]
+    [set-place! (place/c . ->m . any)]
+    [is-lateral? (->m boolean?)]
+    [place-destination (->m any)]
+    [draw (->*m ((is-a?/c dc<%>)) (real? real?) any)])
   (class* entity% (door<%>)
     (super-new [width 3] [height 30]
                [color (make-object color% #xFF #xFF #xFF)])
@@ -68,10 +70,15 @@
  
     ;; Mutator methods {{{
     ;
+    (define/public set-destination!
+      (λ (ndest)
+        (when (identifier? ndest)
+          (set! dest ndest))))
+
     (define/public set-place!
       (λ (np)
-        ;; TODO add code that sets the x,y of door relative to room size
-        (set! place np)))
+        (set! place np)
+        (generate-pos)))
     ;; }}}
 
     ;; Predicates {{{

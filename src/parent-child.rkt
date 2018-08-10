@@ -1,13 +1,13 @@
 #lang racket/base
 
+(require racket/class
+  racket/contract
+  racket/function)
 (module+ test
   (require rackunit
     rackunit/text-ui))
 
-(require racket/class
-  racket/function)
-
-(provide parent<%> parent? child<%> child?
+(provide parent<%> parent? parent/c child<%> child? child/c
   parent-mixin parent%
   child-mixin child%
   parent-child-mixin parent-child%)
@@ -24,6 +24,9 @@
   (λ (o)
     (is-a? o parent<%>)))
 
+(define parent/c
+  (is-a?/c parent<%>))
+
 (define child<%>
   (interface ((class->interface object%))
     valid-parent?
@@ -36,6 +39,9 @@
 (define child?
   (λ (o)
     (is-a? o child<%>)))
+
+(define child/c
+  (is-a?/c child<%>))
 
 (define parent-mixin
   (mixin ((class->interface object%)) (parent<%>)
@@ -74,18 +80,22 @@
               (car children)))))
 ))
 
-(define parent%
+(define/contract parent%
+  (class/c
+    (init-field [children (or/c null? (listof child/c))])
+    [valid-child? (child/c . ->m . boolean?)]
+    (inner [valid-child? (any/c . ->m . boolean?)])
+    [add-child (->*m (child/c) () #:rest (listof child/c) any)]
+    [remove-child (->*m (child/c) () #:rest (listof child/c) any)]
+    get-children
+    get-first-child)
+
   (parent-mixin object%))
 
 (define child-mixin
   (mixin ((class->interface object%)) (child<%>)
     (super-new)
     (init-field [parent #f])
-
-    ((thunk
-       (unless (eq? parent #f)
-         (unless (has-valid-parent?)
-           (error "invalid parent passed to" this (get-parent))))))
 
     ((thunk
        (add-to-parent)))
@@ -114,24 +124,48 @@
 
     (define/public set-parent!
       (λ (npar)
-        (when (parent? npar)
-          (orphan)
-          (set! parent npar)
-          (add-to-parent))))
+        (orphan)
+        (set! parent npar)
+        (add-to-parent)))
 
     (define/public get-parent
       (λ ()
         parent))
 ))
 
-(define child%
+(define/contract child%
+  (class/c
+    (init-field [parent (or/c false/c parent/c)])
+    [valid-parent? (any/c . ->m . boolean?)]
+    [has-valid-parent? (->m boolean?)]
+    [add-to-parent (->m any)]
+    [orphan (->m any)]
+    [set-parent! (parent/c . ->m . any)]
+    get-parent)
+
   (child-mixin object%))
 
 (define parent-child-mixin
   (λ (%)
     (parent-mixin (child-mixin %))))
 
-(define parent-child%
+(define/contract parent-child%
+  (class/c
+    (init-field [children (or/c null? (listof child/c))])
+    [valid-child? (child/c . ->m . boolean?)]
+    (inner [valid-child? (any/c . ->m . boolean?)])
+    [add-child (->*m (child/c) () #:rest (listof child/c) any)]
+    [remove-child (->*m (child/c) () #:rest (listof child/c) any)]
+    get-children
+    get-first-child
+
+    (init-field [parent (or/c false/c parent/c)])
+    [valid-parent? (any/c . ->m . boolean?)]
+    [has-valid-parent? (->m boolean?)]
+    [add-to-parent (->m any)]
+    [orphan (->m any)]
+    [set-parent! (parent/c . ->m . any)]
+    get-parent)
   (parent-child-mixin object%))
 
 ;; Unit tests {{{
