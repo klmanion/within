@@ -26,7 +26,8 @@
   (class* entity% (parasite<%>)
     (super-new [pos-x 97] [pos-y 97]
                [width 5] [height 5]
-               [color (make-object color% #xFF #xFF #xFF)])
+               [color (make-object color% #xFF #xFF #xFF)]
+               [selectable? #t])
     (inherit get-parent)
     (inherit get-color)
     (inherit get-x get-y get-width get-height

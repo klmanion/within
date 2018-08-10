@@ -16,6 +16,7 @@
 (define ship<%>
   (interface (parent<%>)
     get-rooms
+    get-visible-rooms
     get-starting-room
     get-parasite
     place-rooms))
@@ -30,6 +31,7 @@
 (define/contract ship%
   (class/c
     get-rooms
+    get-visible-rooms
     get-starting-room
     get-parasite
     [place-rooms (->m any)])
@@ -53,6 +55,10 @@
         (filter (λ (e)
                   (room? e))
                 (get-children))))
+
+    (define/public get-visible-rooms ; TODO
+      (λ ()
+        (get-rooms)))
 
     (define/public get-starting-room
       (λ ()

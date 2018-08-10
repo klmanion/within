@@ -22,6 +22,7 @@
                 [stage (or/c zero? (and/c real? positive?))]
                 [stage-limit (or/c false/c (and/c real? positive?))]
                 [color (or/c false/c (is-a?/c color%))])
+    (field [selectable? boolean?])
     get-x get-y get-pos
     get-width get-height get-dimensions
     get-color
@@ -39,7 +40,9 @@
                           (or/c zero? (and/c real? positive?))
                           any)]
 
-    [positioned? (->m boolean?)]
+    [positioned? (->m boolean?)] ; deprecated
+    [is-positioned? (->m boolean?)]
+    [is-selectable? (->m boolean?)]
 
     [draw (->*m ((is-a?/c dc<%>)) (real? real?) any)])
 
@@ -50,6 +53,7 @@
     (init-field [bm #f]
                 [form 0] [stage 0] [stage-limit #f]
                 [color #f])
+    (init-field [selectable? #f])
 
     ;; Initialization {{{
     ;
@@ -208,10 +212,19 @@
 
     ;; Predicates {{{
     ;
-    (define/public positioned?
+    (define/public positioned? ; deprecated
       (λ ()
         (and (not (eq? pos-x #f))
              (not (eq? pos-y #f)))))
+
+    (define/public is-positioned?
+      (λ ()
+        (and (not (eq? pos-x #f))
+             (not (eq? pos-y #f)))))
+
+    (define/public is-selectable?
+      (λ ()
+        selectable?))
     ;; }}}
  
     ;; Action methods {{{

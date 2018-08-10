@@ -13,6 +13,8 @@
     set-x! set-y! set-pos!
     set-unbound-x! set-unbound-y! set-unbound-pos!
     positioned?
+    is-positioned?
+    is-selectable?
     draw))
 
 (define entity?

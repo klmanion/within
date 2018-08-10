@@ -16,6 +16,8 @@
     get-offset-x get-offset-y get-offsets
     get-aper-width get-aper-height get-aper-dimensions
     set-aper-width! set-aper-height! set-aper-dimensions!
+    in-viewport?
+    on-event
     draw
     left-callback right-callback up-callback down-callback
     left/no-inv right/no-inv up/no-inv down/no-inv))
@@ -38,6 +40,7 @@
     get-aper-x get-aper-y get-aper-pos
     get-aper-width get-aper-height get-aper-dimensions
     get-offset-x get-offset-y get-offsets
+    get-subject
     [set-x! (real? . ->m . any)]
     [set-y! (real? . ->m . any)]
     [set-pos! (real? real? . ->m . any)]
@@ -50,7 +53,10 @@
     [set-aper-height! (real? . ->m . any)]
     [set-aper-dimensions! (real? real? . ->m . any)]
 
-    [draw ((is-a?/c dc<%>) . ->m . any)]
+    [in-viewport? ((is-a?/c mouse-event%) . ->m . boolean?)]
+
+    (override [on-event ((is-a?/c mouse-event%) . ->m . any)])
+    (override [draw ((is-a?/c dc<%>) . ->m . any)])
 
     [left-callback (->*m () (real?) any)]
     [right-callback (->*m () (real?) any)]
@@ -124,6 +130,10 @@
       (λ ()
         (values (get-offset-x) (get-offset-y))))
     ;; }}}
+
+    (define/public get-subject
+      (λ ()
+        subject))
     ;; }}}
 
     ;; Mutator methods {{{
@@ -168,9 +178,24 @@
         (set-aper-height! nh)))
     ;; }}}
 
-    (define/public draw
-      (λ (dc)
-        (void)))
+    ;; Predicate methods {{{
+    ;
+    (define/public in-viewport?
+      (λ (ev)
+        (let-values ([(xe ye) (values (send ev get-x) (send ev get-y))]
+                     [(xa ya) (get-pos)]
+                     [(wa ha) (get-aper-dimensions)])
+          (and
+            (and (>= xe xa) (<= xe (+ xa wa)))
+            (and (>= ye ya) (<= ye (+ ya ha)))))))
+    ;; }}}
+
+    ;; Callback methods {{{
+    ;
+    (abstract on-event)
+
+    (abstract draw)
+    ;; }}}
 
     ;; Panning methods {{{
     ;

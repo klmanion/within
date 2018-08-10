@@ -10,7 +10,6 @@
 
 ;; game-canvas% {{{
 ;
-
 (define game-canvas%
   (class canvas%
     (super-new [min-width 485]
@@ -60,6 +59,13 @@
           [(right) (send ship-camera right-callback)]
           [(up)    (send ship-camera up-callback)]
           [(down)  (send ship-camera down-callback)])))
+
+    (define/override on-event
+      (λ (ev)
+        (cond
+          [(and (not (eq? ship-camera #f))
+                (send ship-camera in-viewport? ev))
+           (send ship-camera on-event ev)])))
     ;; }}}
 ))
 ;; }}}

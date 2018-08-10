@@ -63,6 +63,12 @@
                (send door get-destination))
              (get-lateral-doors))))
 
+    (define/public get-entities
+      (λ ()
+        (filter (λ (e)
+                  (entity? e))
+                (get-children))))
+
     (define/public get-parasite
       (λ ()
         (let ([psite-lst (filter parasite? (get-children))])
