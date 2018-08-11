@@ -62,6 +62,9 @@
 
     (define/override on-event
       (λ (ev)
+        (let-values ([(xscl yscl) (send (get-dc) get-scale)])
+          (send ev set-x (floor (inexact->exact (/ (send ev get-x) xscl))))
+          (send ev set-y (floor (inexact->exact (/ (send ev get-y) yscl)))))
         (cond
           [(and (not (eq? ship-camera #f))
                 (send ship-camera in-viewport? ev))
