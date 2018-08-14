@@ -23,6 +23,7 @@
   (class/c
     [on-floor (->m any)]
     [draw (->*m ((is-a?/c dc<%>)) (real? real?) any)])
+
   (class* entity% (parasite<%>)
     (super-new [pos-x 97] [pos-y 97]
                [width 5] [height 5]
@@ -50,6 +51,10 @@
           (send dc set-pen color 0 'transparent)
           (send dc set-brush color 'solid)
           (send dc draw-rectangle x y width height))))
+
+    (define/override move
+      (λ (x y [atk? #f])
+        
     ;; }}}
 ))
 ;; }}}

@@ -8,14 +8,17 @@
 (define entity<%>
   (interface (child<%>)
     get-x get-y get-pos
+    get-dest-x get-dest-y get-dest-pos
     get-width get-height get-dimensions
     get-color
     set-x! set-y! set-pos!
     set-unbound-x! set-unbound-y! set-unbound-pos!
+    set-dest-x! set-dest-y! set-dest-pos!
     positioned?
     is-positioned?
     is-selectable?
-    draw))
+    draw
+    move))
 
 (define entity?
   (λ (o)

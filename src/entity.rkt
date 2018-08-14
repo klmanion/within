@@ -24,11 +24,17 @@
                 [color (or/c false/c (is-a?/c color%))])
     (field [selectable? boolean?])
     get-x get-y get-pos
+    get-dest-x get-dest-y get-dest-pos
     get-width get-height get-dimensions
     get-color
     [set-x! ((or/c false/c real?) . ->m . any)]
     [set-y! ((or/c false/c real?) . ->m . any)]
     [set-pos! (->m (or/c false/c real?) (or/c false/c real?) any)]
+
+    [set-dest-x! ((or/c false/c real?) . ->m . any)]
+    [set-dest-y! ((or/c false/c real?) . ->m . any)]
+    [set-dest-pos! ((or/c false/c real?) (or/c false/c real?) . ->m . any)]
+
 
     [set-unbound-x! ((or/c false/c real?) . ->m . any)]
     [set-unbound-y! ((or/c false/c real?) . ->m . any)]
@@ -44,7 +50,8 @@
     [is-positioned? (->m boolean?)]
     [is-selectable? (->m boolean?)]
 
-    [draw (->*m ((is-a?/c dc<%>)) (real? real?) any)])
+    [draw (->*m ((is-a?/c dc<%>)) (real? real?) any)]
+    (override [move (->*m (real? real?) (boolean?) any)]))
 
   (class* child% (entity<%>)
     (super-new)
@@ -54,6 +61,7 @@
                 [form 0] [stage 0] [stage-limit #f]
                 [color #f])
     (init-field [selectable? #f])
+    (field [dest-x #f] [dest-y #f])
 
     ;; Initialization {{{
     ;
@@ -77,6 +85,17 @@
       (λ ()
         (values (get-x) (get-y))))
 
+    (define/public get-dest-x
+      (λ ()
+        dest-x))
+
+    (define/public get-dest-y
+      (λ ()
+        dest-y))
+
+    (define/public get-dest-pos
+      (λ ()
+        (values (get-dest-x) (get-dest-y))))
     ;; }}}
 
     ;; Dimensional variables {{{
@@ -158,6 +177,19 @@
       (λ (nx ny)
         (set-unbound-x! nx)
         (set-unbound-y! ny)))
+
+    (define/public set-dest-x!
+      (λ (nx)
+        (set! dest-x nx)))
+
+    (define/public set-dest-y!
+      (λ (ny)
+        (set! dest-y ny)))
+
+    (define/public set-dest-pos!
+      (λ (nx ny)
+        (set-dest-x! nx)
+        (set-dest-y! ny)))
     ;; }}}
 
     ;; Dimensional variables {{{
@@ -240,6 +272,8 @@
                 (send dc draw-bitmap-section bm
                          x y src-x src-y
                          w h)))))))
+
+    (abstract move)
     ;; }}}
 ))
 ;; }}}

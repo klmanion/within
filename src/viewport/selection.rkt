@@ -15,7 +15,8 @@
     add-entity!
     append-list!
     empty?
-    clear))
+    clear
+    send-members))
 
 (define selection?
   (λ (o)
@@ -35,7 +36,9 @@
 
     [empty? (->m any)]
 
-    [clear (->m any)])
+    [clear (->m any)]
+    
+    [send-members (->m procedure? #:rest (listof any/c) void?)])
 
   (class* object% (selection<%>)
     (super-new)
@@ -72,8 +75,18 @@
         (empty? (get-selection))))
     ;; }}}
 
+    ;; Action methods {{{
+    ;
     (define/public clear
       (λ ()
         (set-selection! '())))
+
+    (define/public send-members
+      (λ (method . rst)
+        (for-each
+          (λ (e)
+            (send e method . rst))
+          lst)))
+    ;; }}}
 ))
 ;; }}}

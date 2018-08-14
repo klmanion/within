@@ -143,7 +143,7 @@
                               (set-selection! #f)
                               (send mtrack start x y))]
                [(right-down) (when (not (eq? selection #f))
-                               (send selection move x y))])]))))
+                               (send selection send-members move x y))])]))))
 
     (define/override draw
       (λ (dc)
