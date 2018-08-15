@@ -22,17 +22,20 @@
 (define/contract parasite%
   (class/c
     [on-floor (->m any)]
-    [draw (->*m ((is-a?/c dc<%>)) (real? real?) any)])
+    [draw (->*m ((is-a?/c dc<%>)) (real? real?) any)]
+    [move (->m any)])
 
   (class* entity% (parasite<%>)
     (super-new [pos-x 97] [pos-y 97]
                [width 5] [height 5]
+               [step 3]
                [color (make-object color% #xFF #xFF #xFF)]
                [selectable? #t])
     (inherit get-parent)
     (inherit get-color)
     (inherit get-x get-y get-width get-height
-             set-x! set-y!)
+             set-x! set-y!
+             set-dest-pos!)
 
     (define/public on-floor
       (λ ()
@@ -53,8 +56,8 @@
           (send dc draw-rectangle x y width height))))
 
     (define/override move
-      (λ (x y [atk? #f])
-        
+      (λ ()
+        (void)))
     ;; }}}
 ))
 ;; }}}

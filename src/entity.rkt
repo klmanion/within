@@ -21,8 +21,13 @@
                 [form (or/c zero? (and/c real? positive?))]
                 [stage (or/c zero? (and/c real? positive?))]
                 [stage-limit (or/c false/c (and/c real? positive?))]
+                [stride real?]
                 [color (or/c false/c (is-a?/c color%))])
-    (field [selectable? boolean?])
+    (init-field [selectable? boolean?])
+    (field [dest-x (or/c false/c real?)]
+           [dest-y (or/c false/c real?)]
+           [dest-theta (or/c false/c real?)])
+    (field [move-timer (is-a?/c timer%)])
     get-x get-y get-pos
     get-dest-x get-dest-y get-dest-pos
     get-width get-height get-dimensions
@@ -51,7 +56,7 @@
     [is-selectable? (->m boolean?)]
 
     [draw (->*m ((is-a?/c dc<%>)) (real? real?) any)]
-    (override [move (->*m (real? real?) (boolean?) any)]))
+    [move (->m any)])
 
   (class* child% (entity<%>)
     (super-new)
@@ -59,9 +64,14 @@
                 [width 0] [height 0])
     (init-field [bm #f]
                 [form 0] [stage 0] [stage-limit #f]
+                [stride 0]
                 [color #f])
     (init-field [selectable? #f])
-    (field [dest-x #f] [dest-y #f])
+    (field [dest-x #f] [dest-y #f]
+           [dest-theta #f])
+    (field [move-timer
+            (new timer% [notify-callback move]
+                        [interval 42])])
 
     ;; Initialization {{{
     ;
@@ -178,18 +188,29 @@
         (set-unbound-x! nx)
         (set-unbound-y! ny)))
 
+    (define/private calc-dest-theta
+      (λ ()
+        (let-values ([(x y) (get-dest-pos)])
+          (if (and (not (eq? x #f))
+                   (not (eq? y #f)))
+            (set! dest-theta (atan y x))
+            (set! dest-theta #f)))))
+
     (define/public set-dest-x!
       (λ (nx)
-        (set! dest-x nx)))
+        (set! dest-x nx)
+        (calc-dest-theta)))
 
     (define/public set-dest-y!
       (λ (ny)
-        (set! dest-y ny)))
+        (set! dest-y ny)
+        (calc-dest-theta)))
 
     (define/public set-dest-pos!
       (λ (nx ny)
-        (set-dest-x! nx)
-        (set-dest-y! ny)))
+        (set! dest-x nx)
+        (set! dest-y ny)
+        (calc-dest-theta)))
     ;; }}}
 
     ;; Dimensional variables {{{
@@ -273,7 +294,13 @@
                          x y src-x src-y
                          w h)))))))
 
-    (abstract move)
+    (define/public move
+      (λ ()
+        (when (not (eq? dest-theta #f))
+          (let ([x (* stride (cos dest-theta))]
+                [y (* stride (sin dest-theta))])
+            (set-x! (+ (get-x) x))
+            (set-y! (+ (get-y) y))))))
     ;; }}}
 ))
 ;; }}}
