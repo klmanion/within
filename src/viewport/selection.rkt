@@ -38,7 +38,7 @@
 
     [clear (->m any)]
     
-    [send-members (->m procedure? #:rest (listof any/c) void?)])
+    [send-members (->*m (symbol?) () #:rest (listof any/c) any)])
 
   (class* object% (selection<%>)
     (super-new)
@@ -82,11 +82,11 @@
         (set-selection! '())))
 
     (define/public send-members
-      (λ (method . rst)
+      (λ (proc . rst)
         (for-each
-          (λ (e)
-            (send e method . rst))
-          lst)))
+          (λ (o)
+            (apply dynamic-send o proc rst))
+          (get-selection))))
     ;; }}}
 ))
 ;; }}}

@@ -144,7 +144,7 @@
                               (send mtrack start x y))]
                [(right-down) (when (not (eq? selection #f))
                                (send selection send-members
-                                     set-dest-pos! x y))])]))))
+                                     'set-dest-pos! x y))])]))))
 
     (define/override draw
       (λ (dc)

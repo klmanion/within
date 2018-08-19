@@ -9,6 +9,7 @@
 (define room<%>
   (interface (entity<%> parent<%>)
     get-name
+    get-floor
     get-doors get-lateral-doors
     get-destinations get-lateral-destinations
     get-parasite

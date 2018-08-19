@@ -21,6 +21,7 @@
     (inherit get-children)
     (inherit get-pos get-dimensions
              get-color)
+    (inherit get-y get-height)
     (inherit positioned?)
 
     ;; Superclass augmentation {{{
@@ -38,6 +39,12 @@
         (if (eq? room-name #f)
             ""
             room-name)))
+
+    (define/public get-floor
+      (λ ()
+        (let ([y (get-y)]
+              [h (get-height)])
+          (+ y h))))
 
     (define/public get-doors
       (λ ()

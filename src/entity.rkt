@@ -68,9 +68,10 @@
                 [color #f])
     (init-field [selectable? #f])
     (field [dest-x #f] [dest-y #f]
-           [dest-theta #f])
+           [dest-theta #f] [new-dest? #f])
     (field [move-timer
-            (new timer% [notify-callback move]
+            (new timer% [notify-callback (thunk
+                                           (send this move))]
                         [interval 42])])
 
     ;; Initialization {{{
@@ -199,17 +200,20 @@
     (define/public set-dest-x!
       (λ (nx)
         (set! dest-x nx)
+        (set! new-dest? #t)
         (calc-dest-theta)))
 
     (define/public set-dest-y!
       (λ (ny)
         (set! dest-y ny)
+        (set! new-dest? #t)
         (calc-dest-theta)))
 
     (define/public set-dest-pos!
       (λ (nx ny)
         (set! dest-x nx)
         (set! dest-y ny)
+        (set! new-dest? #t)
         (calc-dest-theta)))
     ;; }}}
 
