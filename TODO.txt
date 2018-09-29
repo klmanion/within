@@ -11,7 +11,7 @@ All fields are seperated by a tab character.
  |	 	|		|		|- project tag the task contributes to
  |	 	|		|- name of task
  |	 	|- priority of task
- |- completion of task: ' '=not complete; '_'=in progress; 'x'=complete
+ |- completion of task: ` '=not complete; `_'=in progress; `x'=complete
 
 Priority of Tasks
 	S - Of the utmost urgency, significance, and complexity--only certain devs
