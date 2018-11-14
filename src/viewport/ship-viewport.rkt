@@ -109,8 +109,7 @@
             (new selection%
                  [lst (foldl
                         (λ (e acc)
-                          (let-values ([(x0 y0 x1 y1)
-                                        (send mtrack get-coords)]
+                          (let-values ([(x0 y0 x1 y1) (send mtrack get-coords)]
                                        [(xe ye) (send e get-pos)]
                                        [(we he) (send e get-dimensions)])
                             (if (and (and (>= (+ xe we) x0) (<= xe x1))
