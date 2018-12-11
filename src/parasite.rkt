@@ -1,4 +1,7 @@
+;;;; parasite.rkt
+
 #lang racket/base
+
 (require racket/class
   racket/contract
   racket/gui/base)
@@ -6,8 +9,10 @@
 
 (provide parasite<%> parasite? parasite/c parasite%)
 
-;; parasite% {{{
+;;; parasite% {{{
 ;
+
+;;; aux {{{
 (define parasite<%>
   (interface (entity<%>)
     on-floor))
@@ -18,13 +23,17 @@
 
 (define parasite/c
   (is-a?/c parasite<%>))
+;; }}}
 
 (define/contract parasite%
+  ;;; contract {{{
   (class/c
     [on-floor (->m any)]
     [draw (->*m ((is-a?/c dc<%>)) (real? real?) any)]
     [move (->m any)])
+  ;; }}}
 
+  ;;; parasite% {{{
   (class* entity% (parasite<%>)
     (super-new [pos-x 97] [pos-y 97]
                [width 5] [height 5]
@@ -40,13 +49,16 @@
     (inherit-field dest-theta new-dest?)
     (inherit-field stride)
 
+    ;;; methods {{{
+
+    ;;; predicates {{{
     (define/public on-floor
       (λ ()
         (let ([rh (send (get-parent) get-height)])
           (set-y! (- rh (get-width))))))
+    ;; }}}
 
     ;; Action methods {{{
-    ;
     (define/override draw
       (λ (dc [xo 0] [yo 0])
         (let ([color (get-color)]
@@ -92,7 +104,10 @@
                             (set-pos! nx (- yf h))
                             (set! new-dest? #t)))))))))))
     ;; }}}
-))
+    ;; }}}
+  )
+  ;; }}}
+)
 ;; }}}
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:
