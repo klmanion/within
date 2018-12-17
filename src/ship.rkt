@@ -83,7 +83,8 @@
 ;
 
 (module+ test
-  (require "parasite.rkt")
+  (require "parasite.rkt"
+    "room.rkt")
   (void (run-tests
     (test-suite "ship class"
       (test-suite "returning parasite"
