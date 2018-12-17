@@ -2,30 +2,16 @@
 (require racket/class
   racket/contract
   racket/function)
+(require "tracking-inf.rkt")
 
-(provide tracking<%> tracking? tracking/c tracking%)
+(provide tracking%
+  (all-from-out "tracking-inf.rkt"))
 
-;; tracking& {{{
+;;; Tracking {{{
 ;
-(define tracking<%>
-  (interface ((class->interface object%))
-    get-start-x get-start-y get-start-pos
-    get-end-x get-end-y get-end-pos
-    get-coords
-    is-tracking?
-    start
-    move
-    finish
-    clear))
-
-(define tracking?
-  (λ (o)
-    (is-a? o tracking<%>)))
-
-(define tracking/c
-  (is-a?/c tracking<%>))
 
 (define/contract tracking%
+  ;;; Contract {{{
   (class/c
     (field [x0 (or/c false/c real?)]
            [y0 (or/c false/c real?)]
@@ -52,15 +38,17 @@
     [move (real? real? . ->m . any)]
     [finish (->*m () (real? real?) any)]
     [clear (->m any)])
+  ;; }}}
 
+  ;;; tracking% {{{
   (class* object% (tracking<%>)
     (super-new)
     (field [x0 #f] [y0 #f]
            [x1 #f] [y1 #f])
     (field [finished? #f])
 
-    ;; Accessor methods {{{
-    ;
+    ;;; Accessors {{{
+
     (define/public get-start-x
       (λ ()
         x0))
@@ -96,8 +84,8 @@
             (max y0 y1)))))
     ;; }}}
 
-    ;; Mutator methods {{{
-    ;
+    ;;; Mutators {{{
+
     (define/public set-start-x!
       (λ (nx)
         (set! x0 nx)))
@@ -130,8 +118,8 @@
         (set-end-pos! nx1 ny1)))
     ;; }}}
 
-    ;; Predicates {{{
-    ;
+    ;;; Predicates {{{
+
     (define/public is-tracking?
       (λ ()
         (and (not finished?)
@@ -139,8 +127,8 @@
              (not (eq? y0 #f)))))
     ;; }}}
 
-    ;; Action methods {{{
-    ;
+    ;;; Actions {{{
+
     (define/public start
       (λ (x y)
         (clear)
@@ -161,8 +149,8 @@
         (set-coords! #f #f #f #f)
         (set! finished? #f)))
     ;; }}}
-))
+  ) ; }}}
+)
 ;; }}}
-
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

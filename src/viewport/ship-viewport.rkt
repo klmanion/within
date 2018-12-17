@@ -1,36 +1,28 @@
+;;;; viewport ship-viewport.rkt
+
 #lang racket/base
+
 (require racket/class
   racket/contract
   racket/gui/base
   racket/function
   racket/list)
 (require "viewport.rkt"
+  "ship-viewport-inf.rkt"
   "tracking.rkt"
   "selection.rkt"
   "../ship.rkt"
   "../room.rkt"
   "../entity.rkt")
 
-(provide ship-viewport<%> ship-viewport? ship-viewport/c ship-viewport%)
+(provide ship-viewport%
+  (all-from-out "ship-viewport-inf.rkt"))
 
-;; ship-viewport% {{{
+;;; Ship-viewport {{{
 ;
-(define ship-viewport<%>
-  (interface (viewport<%>)
-    get-selection get-mouse-tracking
-    get-selection-outline-color get-selection-fill-color
-    set-selection! set-mouse-tracking!
-    set-selection-outline-color! set-selection-fill-color!
-    get-parasite))
-
-(define ship-viewport?
-  (λ (o)
-    (is-a? o ship-viewport<%>)))
-
-(define ship-viewport/c
-  (is-a?/c ship-viewport<%>))
 
 (define/contract ship-viewport%
+  ;;; Contract {{{
   (class/c
     (field [selection (or/c false/c selection/c)]
            [mtrack tracking/c])
@@ -44,7 +36,9 @@
      (->*m (byte? byte? byte?) ((real-in 0 1)) any)]
     [set-selection-fill-color!
      (->*m (byte? byte? byte?) ((real-in 0 1)) any)])
+  ;; }}}
 
+  ;;; ship-viewport% {{{
   (class* viewport% (ship-viewport<%>)
     (super-new)
     (field [selection #f]
@@ -54,8 +48,8 @@
     (inherit get-offsets get-aper-dimensions)
     (inherit get-subject)
 
-    ;; Accessor methods {{{
-    ;
+    ;;; Accessors {{{
+
     (define/public get-selection
       (λ ()
         selection))
@@ -80,8 +74,8 @@
               (send subject get-parasite)))))
     ;; }}}
 
-    ;; Mutator methods {{{
-    ;
+    ;;; Mutators {{{
+
     (define/public set-selection!
       (λ (nsel)
         (set! selection nsel)))
@@ -99,8 +93,8 @@
         (set! sfclr (make-object color% r g b a))))
     ;; }}}
 
-    ;; Action methods {{{
-    ;
+    ;;; Actions {{{
+
     (define/private make-selection
       (λ ()
         (let ([selection (get-selection)]
@@ -177,7 +171,8 @@
                 (send dc set-brush sfclr 'transparent)
                 (send dc draw-rectangle x0 y0 dx dy)))))))
     ;; }}}
-))
+  ) ; }}}
+)
 ;; }}}
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

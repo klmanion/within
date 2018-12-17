@@ -1,35 +1,22 @@
+;;;; viewport viewport.rkt
+
 #lang racket/base
+
 (require racket/class
   racket/contract
   racket/gui/base
   racket/function)
-(require "../entity.rkt")
+(require "viewport-inf.rkt"
+  "../entity.rkt")
 
-(provide viewport<%> viewport? viewport/c viewport%)
+(provide viewport%
+  (all-from-out "viewport-inf.rkt"))
 
-;; viewport% {{{
+;;; viewport% {{{
 ;
-(define viewport<%>
-  (interface ((class->interface object%))
-    get-x get-y get-pos
-    get-aper-x get-aper-y get-aper-pos
-    get-offset-x get-offset-y get-offsets
-    get-aper-width get-aper-height get-aper-dimensions
-    set-aper-width! set-aper-height! set-aper-dimensions!
-    in-viewport?
-    on-event
-    draw
-    left-callback right-callback up-callback down-callback
-    left/no-inv right/no-inv up/no-inv down/no-inv))
-
-(define viewport?
-  (λ (o)
-    (is-a? o viewport<%>)))
-
-(define viewport/c
-  (is-a?/c viewport<%>))
 
 (define/contract viewport%
+  ;;; Contract {{{
   (class/c
     (init-field subject
                 [pos-x real?] [pos-y real?]
@@ -67,6 +54,9 @@
     [right/no-inv (->*m () (real?) any)]
     [up/no-inv (->*m () (real?) any)]
     [down/no-inv (->*m () (real?) any)])
+  ;; }}}
+
+  ;;; viewport% {{{
   (class* object% (viewport<%>)
     (super-new)
     (init-field [subject #f]
@@ -75,10 +65,9 @@
 		            [aper-width 0] [aper-height 0]
                 [inverted? #t])
 
-    ;; Accessor methods {{{
-    ;
-    ;; Position methods {{{
-    ;
+    ;;; Accessors {{{
+
+    ;;; Position {{{
     (define/public get-x
       (λ ()
         pos-x))
@@ -116,8 +105,7 @@
         (values (get-aper-width) (get-aper-height))))
     ;; }}}
 
-    ;; Positional offsets {{{
-    ;
+    ;;; Positional offsets {{{
     (define/public get-offset-x
       (λ ()
         (- (get-aper-x) (get-x))))
@@ -136,8 +124,8 @@
         subject))
     ;; }}}
 
-    ;; Mutator methods {{{
-    ;
+    ;;; Mutators {{{
+
     (define/public set-x!
       (λ (nx)
         (set! pos-x nx)))
@@ -178,8 +166,8 @@
         (set-aper-height! nh)))
     ;; }}}
 
-    ;; Predicate methods {{{
-    ;
+    ;;; Predicates {{{
+
     (define/public in-viewport?
       (λ (ev)
         (let-values ([(xe ye) (values (send ev get-x) (send ev get-y))]
@@ -190,19 +178,18 @@
             (and (>= ye ya) (<= ye (+ ya ha)))))))
     ;; }}}
 
-    ;; Callback methods {{{
-    ;
+    ;;; Callbacks {{{
+
     (abstract on-event)
 
     (abstract draw)
     ;; }}}
 
-    ;; Panning methods {{{
-    ;
+    ;;; Panning {{{
+
     (define panning-d 10)
 
-    ;; Private workhorse functions {{{
-    ;
+    ;;; Workhorses {{{
     (define/private pan-left
       (λ ([d panning-d])
         (set! aper-x (- aper-x d))))
@@ -220,8 +207,7 @@
         (set! aper-y (- aper-y d))))
     ;; }}}
 
-    ;; Interface member functions {{{
-    ;
+    ;;; Interface {{{
     (define/public left-callback
       (λ ([d panning-d])
         (if inverted?
@@ -263,7 +249,8 @@
         (pan-down d)))
     ;; }}}
     ;; }}}
-))
+  ) ; }}}
+)
 ;; }}}
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

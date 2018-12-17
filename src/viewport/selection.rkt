@@ -1,31 +1,21 @@
+;;;; viewport selection.rkt
+
 #lang racket/base
+
 (require racket/class
   racket/contract
   racket/function)
-(require "../entity.rkt")
+(require "selection-inf.rkt"
+  "../entity.rkt")
 
-(provide selection<%> selection? selection/c selection%)
+(provide selection%
+  (all-from-out "selection-inf.rkt"))
 
-;; selection% {{{
+;;; Selection {{{
 ;
-(define selection<%>
-  (interface ((class->interface object%))
-    get-selection
-    set-selection!
-    add-entity!
-    append-list!
-    empty?
-    clear
-    send-members))
-
-(define selection?
-  (λ (o)
-    (is-a? o selection<%>)))
-
-(define selection/c
-  (is-a?/c selection<%>))
 
 (define/contract selection%
+  ;;; Contract {{{
   (class/c
     (init-field [lst (or/c null? (listof entity/c))])
     get-selection
@@ -39,20 +29,22 @@
     [clear (->m any)]
     
     [send-members (->*m (symbol?) () #:rest (listof any/c) any)])
+  ;; }}}
 
+  ;;; selection% {{{
   (class* object% (selection<%>)
     (super-new)
     (init-field [lst '()])
 
-    ;; Accessor methods {{{
-    ;
+    ;;; Accessor methods {{{
+
     (define/public get-selection
       (λ ()
         lst))
     ;; }}}
 
-    ;; Mutator methods {{{
-    ;
+    ;;; Mutator methods {{{
+
     (define/public set-selection!
       (λ (nlst)
         (set! lst nlst)))
@@ -68,15 +60,15 @@
             (set-selection! (append nlst (get-selection))))))
     ;; }}}
 
-    ;; Predicates {{{
-    ;
+    ;;; Predicates {{{
+
     (define/public empty?
       (λ ()
         (empty? (get-selection))))
     ;; }}}
 
-    ;; Action methods {{{
-    ;
+    ;;; Action methods {{{
+
     (define/public clear
       (λ ()
         (set-selection! '())))
@@ -88,5 +80,8 @@
             (apply dynamic-send o proc rst))
           (get-selection))))
     ;; }}}
-))
+  ) ; }}}
+)
 ;; }}}
+
+; vim: set ts=2 sw=2 expandtab lisp tw=79:
