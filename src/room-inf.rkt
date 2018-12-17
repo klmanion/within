@@ -1,7 +1,9 @@
+;;;; room-inf.rkt
+
 #lang racket/base
 
 (require racket/class)
-(require "entity-h.rkt"
+(require "entity-inf.rkt"
   "parent-child.rkt")
 
 (provide room<%> room? room/c)

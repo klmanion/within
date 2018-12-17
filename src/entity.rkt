@@ -1,17 +1,22 @@
+;;;; entity.rkt
+
 #lang racket/base
+
 (require racket/class
   racket/contract
   racket/gui/base
   racket/function)
-(require "entity-h.rkt"
+(require "entity-inf.rkt"
   "parent-child.rkt")
 
 (provide entity%
-  (all-from-out "entity-h.rkt"))
+  (all-from-out "entity-inf.rkt"))
 
 ;; entity% {{{
 ;
+
 (define/contract entity%
+  ;;; Contract {{{
   (class/c
     (init-field [pos-x (or/c false/c real?)]
                 [pos-y (or/c false/c real?)]
@@ -57,7 +62,9 @@
 
     [draw (->*m ((is-a?/c dc<%>)) (real? real?) any)]
     [move (->m any)])
+  ;; }}}
 
+  ;;; entity% {{{
   (class* child% (entity<%>)
     (super-new)
     (init-field [pos-x #f] [pos-y #f]
@@ -74,16 +81,15 @@
                                            (send this move))]
                         [interval 42])])
 
-    ;; Initialization {{{
-    ;
+    ;;; Initialization {{{
+
     ((thunk
        (key-bitmap)))
     ;; }}}
 
-    ;; Accessor methods {{{
-    ;
-    ;; Positional variables {{{
-    ;
+    ;;; Accessors {{{
+
+    ;;; Positional variables {{{
     (define/public get-x
       (λ ()
         pos-x))
@@ -109,8 +115,7 @@
         (values (get-dest-x) (get-dest-y))))
     ;; }}}
 
-    ;; Dimensional variables {{{
-    ;
+    ;;; Dimensional variables {{{
     (define/public get-width
       (λ ()
         width))
@@ -124,8 +129,7 @@
         (values (get-width) (get-height))))
     ;; }}}
 
-    ;; Sprite variables {{{
-    ;
+    ;;; Sprite variables {{{
     (define/private get-bitmap
       (λ ()
         bm))
@@ -157,10 +161,9 @@
     ;; }}}
     ;; }}}
 
-    ;; Mutator methods {{{
-    ;
-    ;; Positional variables {{{
-    ;
+    ;;; Mutator methods {{{
+
+    ;;; Positional variables {{{
     (define/public set-x!
       (λ (nx)
         (set! pos-x nx)))
@@ -217,8 +220,7 @@
         (calc-dest-theta)))
     ;; }}}
 
-    ;; Dimensional variables {{{
-    ;
+    ;;; Dimensional variables {{{
     (define/public set-width!
       (λ (nw)
         (set! width nw)))
@@ -233,8 +235,7 @@
         (set-height! nh)))
     ;; }}}
 
-    ;; Sprite variables {{{
-    ;
+    ;;; Sprite variables {{{
     (define/private set-form!
       (λ (nf)
         (when (>= nf 0)
@@ -267,8 +268,8 @@
     ;; }}}
     ;; }}}
 
-    ;; Predicates {{{
-    ;
+    ;;; Predicates {{{
+
     (define/public positioned? ; deprecated
       (λ ()
         (and (not (eq? pos-x #f))
@@ -284,8 +285,8 @@
         selectable?))
     ;; }}}
  
-    ;; Action methods {{{
-    ;
+    ;;; Action methods {{{
+
     (define/public draw
       (λ (dc [xo 0] [yo 0])
         (let ([bm (get-bitmap)])
@@ -306,7 +307,8 @@
             (set-x! (+ (get-x) x))
             (set-y! (+ (get-y) y))))))
     ;; }}}
-))
+  ) ; }}}
+) 
 ;; }}}
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

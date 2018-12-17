@@ -1,8 +1,10 @@
+;;;; door-inf.rkt
+
 #lang racket/base
 
 (require racket/class
   racket/contract)
-(require "entity-h.rkt")
+(require "entity-inf.rkt")
 
 (provide door<%> door? door/c
   place/c)

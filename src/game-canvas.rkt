@@ -1,4 +1,7 @@
+;;;; game-canvas.rkt
+
 #lang racket/base
+
 (require racket/class
   racket/gui/base
   racket/function)
@@ -8,8 +11,9 @@
 
 (provide game-canvas%)
 
-;; game-canvas% {{{
+;;; game-canvas% {{{
 ;
+
 (define game-canvas%
   (class canvas%
     (super-new [min-width 485]
@@ -26,15 +30,15 @@
                                  [aper-width 485] [aper-height 300]))])
     (inherit get-dc refresh)
 
-    ;; Initialization {{{
-    ;
+    ;;; Initialization {{{
+
     ((thunk
        (when (ship-viewport? ship-camera)
          (set! player (send ship-camera get-parasite)))))
     ;; }}}
 
-    ;; Callback methods {{{
-    ;
+    ;;; Callbacks {{{
+
     (define/override on-paint
       (λ ()
         (let ([dc (get-dc)])

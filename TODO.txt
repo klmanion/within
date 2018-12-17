@@ -1,4 +1,4 @@
-TODO
+TODO.txt
 
 Formatting Rules {{{
 
@@ -26,7 +26,7 @@ Priority of Tasks
 
 }}}
 
-TODO
+TODO:
 
 (x)	(A)	flesh-out the skeleton code	+maintainence	@src
 (x)	(D)	allow numeric characters in identifiers +map	@map @lexer
@@ -35,5 +35,6 @@ TODO
 ( ) (B)	control groups	+ui +ctrl_groups	@src
 ( )	(C)	sloped rooms	+map +room_types	@map @expander
 ( )	(A)	use HEAD clause to set defaults for objects	+map +defaults	@src @map @expander
+( )	(D)	add contract to room%	+contracting	@src	file:src/room.rkt
 
 vim: set ts=4 sw=4 noexpandtab tw=0:
