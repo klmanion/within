@@ -161,7 +161,7 @@
     ;; }}}
     ;; }}}
 
-    ;;; Mutator methods {{{
+    ;;; Mutators {{{
 
     ;;; Positional variables {{{
     (define/public set-x!
@@ -285,7 +285,7 @@
         selectable?))
     ;; }}}
  
-    ;;; Action methods {{{
+    ;;; Actions {{{
 
     (define/public draw
       (λ (dc [xo 0] [yo 0])
