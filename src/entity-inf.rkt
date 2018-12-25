@@ -19,6 +19,7 @@
     positioned?
     is-positioned?
     is-selectable?
+    is-moving-self?
     draw
     move))
 

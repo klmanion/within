@@ -7,7 +7,8 @@
   racket/gui/base
   racket/function)
 (require "entity-inf.rkt"
-  "parent-child.rkt")
+  "parent-child.rkt"
+  "force.rkt")
 
 (provide entity%
   (all-from-out "entity-inf.rkt"))
@@ -59,8 +60,10 @@
     [positioned? (->m boolean?)] ; deprecated
     [is-positioned? (->m boolean?)]
     [is-selectable? (->m boolean?)]
+    [is-moving-self? (->m boolean?)]
 
     [draw (->*m ((is-a?/c dc<%>)) (real? real?) any)]
+    [start-move (real? real? . ->m . any)]
     [move (->m any)])
   ;; }}}
 
@@ -71,7 +74,7 @@
                 [width 0] [height 0])
     (init-field [bm #f]
                 [form 0] [stage 0] [stage-limit #f]
-                [stride 0]
+                [stride 100] ; FIXME back to 0
                 [color #f])
     (init-field [selectable? #f])
     (field [dest-x #f] [dest-y #f]
@@ -113,6 +116,16 @@
     (define/public get-dest-pos
       (λ ()
         (values (get-dest-x) (get-dest-y))))
+    ;; }}}
+
+    ;;; Constitutional variables {{{
+    (define/public get-mass
+      (λ ()
+        mass))
+
+    (define/public get-velocity
+      (λ ()
+        velocity))
     ;; }}}
 
     ;;; Dimensional variables {{{
@@ -177,6 +190,19 @@
         (set-x! nx)
         (set-y! ny)))
 
+    (define/public move-x!
+      (λ (dx)
+        (set-x! (+ (get-x) dx))))
+
+    (define/public move-y!
+      (λ (dy)
+        (set-y! (+ (get-y) dy))))
+
+    (define/public move-pos!
+      (λ (dx dy)
+        (move-x! dx)
+        (move-y! dy)))
+
     (define/public set-unbound-x!
       (λ (nx)
         (when (eq? pos-x #f)
@@ -218,6 +244,16 @@
         (set! dest-y ny)
         (set! new-dest? #t)
         (calc-dest-theta)))
+    ;; }}}
+
+    ;;; Constitutional variables {{{
+    (define set-mass!
+      (λ (nm)
+        (set! mass nm)))
+
+    (define set-velocity!
+      (λ (nv)
+        (set! velocity nv)))
     ;; }}}
 
     ;;; Dimensional variables {{{
@@ -283,6 +319,11 @@
     (define/public is-selectable?
       (λ ()
         selectable?))
+
+    (define/public is-moving-self?
+      (λ ()
+        (and (not (eq? (get-dest-x) #f))
+             (not (eq? (get-dest-y) #f)))))
     ;; }}}
  
     ;;; Actions {{{
@@ -299,16 +340,24 @@
                          x y src-x src-y
                          w h)))))))
 
+    (define/public start-move
+      (λ (dest-x dest-y)
+        (set-dest-pos! dest-x dest-y)))
+
     (define/public move
       (λ ()
-        (when (not (eq? dest-theta #f))
-          (let ([x (* stride (cos dest-theta))]
-                [y (* stride (sin dest-theta))])
-            (set-x! (+ (get-x) x))
-            (set-y! (+ (get-y) y))))))
-    ;; }}}
+        (when (is-moving-self?)
+          (let-values ([(x0 y0) (get-pos)]
+                       [(xf yf) (get-dest-pos)])
+            (let ([dx (- xf x0)]
+                  [dy (- yf y0)])
+              (let ([theta (atan (/ dy dx))])
+                (let ([x1 (* stride (cos theta))]
+                      [y1 (* stride (sin theta))])
+                  (set-pos! x1 y1))))))))
+     ;; }}}
   ) ; }}}
-) 
+)
 ;; }}}
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:
