@@ -7,8 +7,7 @@
   racket/gui/base
   racket/function)
 (require "entity-inf.rkt"
-  "parent-child.rkt"
-  "force.rkt")
+  "parent-child.rkt")
 
 (provide entity%
   (all-from-out "entity-inf.rkt"))
@@ -74,7 +73,7 @@
                 [width 0] [height 0])
     (init-field [bm #f]
                 [form 0] [stage 0] [stage-limit #f]
-                [stride 100] ; FIXME back to 0
+                [stride 0]
                 [color #f])
     (init-field [selectable? #f])
     (field [dest-x #f] [dest-y #f]
@@ -116,16 +115,6 @@
     (define/public get-dest-pos
       (λ ()
         (values (get-dest-x) (get-dest-y))))
-    ;; }}}
-
-    ;;; Constitutional variables {{{
-    (define/public get-mass
-      (λ ()
-        mass))
-
-    (define/public get-velocity
-      (λ ()
-        velocity))
     ;; }}}
 
     ;;; Dimensional variables {{{
@@ -244,16 +233,6 @@
         (set! dest-y ny)
         (set! new-dest? #t)
         (calc-dest-theta)))
-    ;; }}}
-
-    ;;; Constitutional variables {{{
-    (define set-mass!
-      (λ (nm)
-        (set! mass nm)))
-
-    (define set-velocity!
-      (λ (nv)
-        (set! velocity nv)))
     ;; }}}
 
     ;;; Dimensional variables {{{
