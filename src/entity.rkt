@@ -331,16 +331,20 @@
         (when (is-moving-self?)
           (let-values ([(x0 y0) (get-pos)]
                        [(xf yf) (get-dest-pos)])
-            (let ([dx (- xf x0)]
-                  [dy (- yf y0)])
-              (let ([theta (atan (/ dy dx))])
-                (cond [(< stride (sqrt (+ (expt dx 2) (expt dy 2))))
-                       (let ([x1 (+ x0 (* stride (cos theta)))]
-                             [y1 (+ y0 (* stride (sin theta)))])
-                         (set-pos! x1 y1))]
-                      [else (begin
-                              (set-pos! xf yf)
-                              (stop-move))])))))))
+            (let ([sdx (- xf x0)]
+                  [sdy (- yf y0)])
+              (let ([ax (if (< sdx 0) -1 1)]
+                    [ay (if (< sdy 0) -1 1)]
+                    [dx (abs sdx)]
+                    [dy (abs sdy)])
+                (let ([theta (atan (/ dy dx))])
+                  (cond [(< stride (sqrt (+ (expt dx 2) (expt dy 2))))
+                         (let ([x1 (+ x0 (* ax stride (cos theta)))]
+                               [y1 (+ y0 (* ay stride (sin theta)))])
+                           (set-pos! x1 y1))]
+                        [else (begin
+                                (set-pos! xf yf)
+                                (stop-move))]))))))))
      ;; }}}
   ) ; }}}
 )
