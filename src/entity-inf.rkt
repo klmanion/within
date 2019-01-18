@@ -15,12 +15,13 @@
     get-color
     set-x! set-y! set-pos!
     set-unbound-x! set-unbound-y! set-unbound-pos!
-    set-dest-x! set-dest-y! set-dest-pos!
+    set-dest-x! set-dest-y! set-dest-pos! clear-dest-pos!
     positioned?
     is-positioned?
     is-selectable?
     is-moving-self?
     draw
+    start-move stop-move
     move))
 
 (define entity?

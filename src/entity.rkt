@@ -44,6 +44,7 @@
     [set-dest-x! ((or/c false/c real?) . ->m . any)]
     [set-dest-y! ((or/c false/c real?) . ->m . any)]
     [set-dest-pos! ((or/c false/c real?) (or/c false/c real?) . ->m . any)]
+    [clear-dest-pos! (->m any)]
 
 
     [set-unbound-x! ((or/c false/c real?) . ->m . any)]
@@ -63,6 +64,7 @@
 
     [draw (->*m ((is-a?/c dc<%>)) (real? real?) any)]
     [start-move (real? real? . ->m . any)]
+    [stop-move (->m any)]
     [move (->m any)])
   ;; }}}
 
@@ -179,6 +181,10 @@
         (set-x! nx)
         (set-y! ny)))
 
+    (define/private clear-pos!
+      (λ ()
+        (set-pos! #f #f)))
+
     (define/public move-x!
       (λ (dx)
         (set-x! (+ (get-x) dx))))
@@ -207,32 +213,25 @@
         (set-unbound-x! nx)
         (set-unbound-y! ny)))
 
-    (define/private calc-dest-theta
-      (λ ()
-        (let-values ([(x y) (get-dest-pos)])
-          (if (and (not (eq? x #f))
-                   (not (eq? y #f)))
-            (set! dest-theta (atan y x))
-            (set! dest-theta #f)))))
-
     (define/public set-dest-x!
       (λ (nx)
         (set! dest-x nx)
-        (set! new-dest? #t)
-        (calc-dest-theta)))
+        (set! new-dest? #t)))
 
     (define/public set-dest-y!
       (λ (ny)
         (set! dest-y ny)
-        (set! new-dest? #t)
-        (calc-dest-theta)))
+        (set! new-dest? #t)))
 
     (define/public set-dest-pos!
       (λ (nx ny)
         (set! dest-x nx)
         (set! dest-y ny)
-        (set! new-dest? #t)
-        (calc-dest-theta)))
+        (set! new-dest? #t)))
+
+    (define/public clear-dest-pos!
+      (λ ()
+        (set-dest-pos! #f #f)))
     ;; }}}
 
     ;;; Dimensional variables {{{
@@ -323,6 +322,10 @@
       (λ (dest-x dest-y)
         (set-dest-pos! dest-x dest-y)))
 
+    (define/public stop-move
+      (λ ()
+        (clear-dest-pos!)))
+
     (define/public move
       (λ ()
         (when (is-moving-self?)
@@ -331,9 +334,13 @@
             (let ([dx (- xf x0)]
                   [dy (- yf y0)])
               (let ([theta (atan (/ dy dx))])
-                (let ([x1 (* stride (cos theta))]
-                      [y1 (* stride (sin theta))])
-                  (set-pos! x1 y1))))))))
+                (cond [(< stride (sqrt (+ (expt dx 2) (expt dy 2))))
+                       (let ([x1 (+ x0 (* stride (cos theta)))]
+                             [y1 (+ y0 (* stride (sin theta)))])
+                         (set-pos! x1 y1))]
+                      [else (begin
+                              (set-pos! xf yf)
+                              (stop-move))])))))))
      ;; }}}
   ) ; }}}
 )
