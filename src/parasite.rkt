@@ -26,7 +26,7 @@
   (class* entity% (parasite<%>)
     (super-new [pos-x 97] [pos-y 97]
                [width 5] [height 5]
-               [stride 40]
+               [stride 5]
                [color (make-object color% #xFF #xFF #xFF)]
                [selectable? #t])
 
@@ -60,39 +60,6 @@
           (send dc set-brush color 'solid)
           (send dc draw-rectangle x y width height))))
 
-    ;(define trajectory (λ (x) (void)))
-;    (define/override move
-;      (λ ()
-;        (if new-dest?
-;            (begin
-;              (set! new-dest? #f)
-;              (when (not (eq? dest-theta #f))
-;                (set! trajectory
-;                      (λ (x)
-;                        (let-values ([(xd yd) (get-dest-pos)]
-;                                     [(x0 y0) (get-pos)])
-;                          (let ([move-right? (> xd x0)])
-;                            (let ([a -1]
-;                                  [h (* (/ stride 2) (if move-right? 1 -1))]
-;                                  [k (/ stride 2)])
-;                              (+ (* a (expt (- (- x x0) h) 2)) k))))))))
-;            (begin
-;              (when (not (eq? dest-theta #f))
-;                (let-values ([(x y) (get-pos)]
-;                             [(w h) (get-dimensions)]
-;                             [(xd yd) (get-dest-pos)]
-;                             [(yf) (send (get-parent) get-floor)])
-;                  (let ([move-right? (> xd x)])
-;                    (let* ([fa (trajectory x)]
-;                           [nx ((if move-right? + -) x (/ stride 30))]
-;                           [fb (trajectory nx)]
-;                           [ny (- y (- fb fa))])
-;                      (if (<= ny yf)
-;                          (begin
-;                            (set-pos! nx ny))
-;                          (begin
-;                            (set-pos! nx (- yf h))
-;                            (set! new-dest? #t)))))))))))
     ;; }}}
   ) ; }}}
 )
