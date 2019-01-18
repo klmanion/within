@@ -1,4 +1,4 @@
-TODO
+TODO.txt
 
 Formatting Rules {{{
 
@@ -11,7 +11,7 @@ All fields are seperated by a tab character.
  |	 	|		|		|- project tag the task contributes to
  |	 	|		|- name of task
  |	 	|- priority of task
- |- completion of task: ' '=not complete; '_'=in progress; 'x'=complete
+ |- completion of task: ` '=not complete; `_'=in progress; `x'=complete
 
 Priority of Tasks
 	S - Of the utmost urgency, significance, and complexity--only certain devs
@@ -26,14 +26,15 @@ Priority of Tasks
 
 }}}
 
-TODO
+TODO:
 
 (x)	(A)	flesh-out the skeleton code	+maintainence	@src
 (x)	(D)	allow numeric characters in identifiers +map	@map @lexer
 ( )	(C) only draw rooms the parasite can see	+room_visability +ui	@src
-( )	(B)	ability to select and move parasite	+ui +micro	@src
+(_)	(B)	ability to select and move parasite	+ui +micro	@src
 ( ) (B)	control groups	+ui +ctrl_groups	@src
 ( )	(C)	sloped rooms	+map +room_types	@map @expander
 ( )	(A)	use HEAD clause to set defaults for objects	+map +defaults	@src @map @expander
+( )	(D)	add contract to room%	+contracting	@src	file:src/room.rkt
 
 vim: set ts=4 sw=4 noexpandtab tw=0:

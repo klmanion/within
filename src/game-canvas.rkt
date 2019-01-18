@@ -1,4 +1,7 @@
+;;;; game-canvas.rkt
+
 #lang racket/base
+
 (require racket/class
   racket/gui/base
   racket/function)
@@ -8,7 +11,7 @@
 
 (provide game-canvas%)
 
-;; game-canvas% {{{
+;;; game-canvas% {{{
 ;
 
 (define game-canvas%
@@ -27,15 +30,15 @@
                                  [aper-width 485] [aper-height 300]))])
     (inherit get-dc refresh)
 
-    ;; Initialization {{{
-    ;
+    ;;; Initialization {{{
+
     ((thunk
        (when (ship-viewport? ship-camera)
          (set! player (send ship-camera get-parasite)))))
     ;; }}}
 
-    ;; Callback methods {{{
-    ;
+    ;;; Callbacks {{{
+
     (define/override on-paint
       (λ ()
         (let ([dc (get-dc)])
@@ -60,6 +63,16 @@
           [(right) (send ship-camera right-callback)]
           [(up)    (send ship-camera up-callback)]
           [(down)  (send ship-camera down-callback)])))
+
+    (define/override on-event
+      (λ (ev)
+        (let-values ([(xscl yscl) (send (get-dc) get-scale)])
+          (send ev set-x (floor (inexact->exact (/ (send ev get-x) xscl))))
+          (send ev set-y (floor (inexact->exact (/ (send ev get-y) yscl)))))
+        (cond
+          [(and (not (eq? ship-camera #f))
+                (send ship-camera in-viewport? ev))
+           (send ship-camera on-event ev)])))
     ;; }}}
 ))
 ;; }}}

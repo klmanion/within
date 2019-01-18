@@ -1,9 +1,12 @@
+;;;; main.rkt
+
 #lang racket/base
+
 (require racket/class
   racket/gui/base)
 (require "game-canvas.rkt")
 
-;; Within
+;;; Within
 ;
 
 (define f (new frame%

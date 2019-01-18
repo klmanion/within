@@ -1,3 +1,5 @@
+;;;; door.rkt
+
 #lang racket/base
 
 (require racket/class
@@ -5,16 +7,18 @@
   racket/gui/base
   racket/function
   racket/syntax)
-(require "door-h.rkt"
-  "room-h.rkt"
+(require "door-inf.rkt"
+  "room.rkt"
   "entity.rkt")
 
 (provide door%
-  (all-from-out "door-h.rkt"))
+  (all-from-out "door-inf.rkt"))
 
-;; door% {{{
+;;; Door {{{
 ;
+
 (define/contract door%
+  ;;; Contract {{{
   (class/c
     (init-field [dest (or/c false/c room/c)]
                 [place place/c])
@@ -25,6 +29,9 @@
     [is-lateral? (->m boolean?)]
     [place-destination (->m any)]
     [draw (->*m ((is-a?/c dc<%>)) (real? real?) any)])
+  ;; }}}
+
+  ;;; door% {{{
   (class* entity% (door<%>)
     (super-new [width 3] [height 30]
                [color (make-object color% #xFF #xFF #xFF)])
@@ -34,8 +41,8 @@
     (inherit set-pos!)
     (inherit positioned?)
 
-    ;; Initialization {{{
-    ;
+    ;;; Initialization {{{
+
     ((thunk
        (generate-pos)))
 
@@ -57,8 +64,8 @@
                   (set-pos! xd yd)))))))
     ;; }}}
 
-    ;; Accessor methods {{{
-    ;
+    ;;; Accessors {{{
+
     (define/public get-destination
       (λ ()
         dest))
@@ -68,8 +75,8 @@
         place))
     ;; }}}
  
-    ;; Mutator methods {{{
-    ;
+    ;;; Mutators {{{
+
     (define/public set-destination!
       (λ (ndest)
         (when (identifier? ndest)
@@ -81,8 +88,8 @@
         (generate-pos)))
     ;; }}}
 
-    ;; Predicates {{{
-    ;
+    ;;; Predicates {{{
+
     (define/public is-lateral?
       (λ ()
         (let ([place (get-place)])
@@ -90,8 +97,8 @@
               (eq? place 'right)))))
     ;; }}}
 
-    ;; Action methods {{{
-    ;
+    ;;; Actions {{{
+
     (define/public place-destination
       (λ ()
         (generate-pos)
@@ -122,7 +129,8 @@
               (send dc set-brush color 'solid)
               (send dc draw-rectangle x y w h))))))
     ;; }}}
-))
+  ) ; }}}
+)
 ;; }}}
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

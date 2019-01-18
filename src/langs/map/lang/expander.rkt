@@ -1,3 +1,5 @@
+;;;; langs map lang expander.rkt
+
 #lang racket/base
 
 (require (for-syntax racket/base
@@ -11,18 +13,18 @@
 
 (provide #%top #%app #%datum #%top-interaction)
 
-;; map-expander-settings {{{
+;;; map-expander-settings {{{
 ;
+
 (define map-expander-settings
   (new
     (class object%
       (super-new)
       (field [room-height 80])
   
-      ;; Accessor/Mutator member functions {{{
-      ;
+      ;;; Accessors/Mutators {{{
   
-      ;; room-height {{{
+      ;;; room-height {{{
       (define/public get-room-height
         (λ ()
           room-height))
@@ -32,13 +34,13 @@
           (when (integer? nv)
             (set! room-height nv))))
       ;; }}}
-  
       ;; }}}
 )))
 ;; }}}
 
-;; Syntax classes {{{
+;;; Syntax classes {{{
 ;
+
 (begin-for-syntax
   (define-syntax-class clause
     #:literals (clause)
@@ -161,16 +163,18 @@
                        (format-symbol "~a" word-val))))))
 ;; }}}
 
-;; Parameters {{{
+;;; Parameters {{{
 ;
+
 (define current-obj (make-parameter #f))
 (define current-container (make-parameter #f))
 
 (provide current-obj current-container)
 ;; }}}
 
-;; #%module-begin {{{
+;;; #%module-begin {{{
 ;
+
 (require racket/class
   racket/contract/base)
 (require "../../../defs.rkt")
@@ -191,8 +195,9 @@
 (provide (rename-out [map-module-begin #%module-begin]))
 ;; }}}
 
-;; Syntax expanders {{{
+;;; Syntax expanders {{{
 ;
+
 (define-syntax program
   (syntax-parser
     [(_ c:clause ...)
@@ -257,13 +262,13 @@
 (provide symbol)
 ;; }}}
 
-;; Unit tests {{{
+;;; Unit tests {{{
 ;
+
 (module+ test
   (void (run-tests
     (test-suite "syntax stepper"
-      (expand-module/step "../../../../maps/test1.rkt")
-      ))))
+      (expand-module/step "../../../../maps/test1.rkt")))))
 ; }}}
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

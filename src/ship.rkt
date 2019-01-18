@@ -1,58 +1,59 @@
+;;;; ship.rkt
+
 #lang racket/base
+
 (require racket/class
   racket/contract
   racket/gui/base
   racket/function)
-(require "parent-child.rkt"
-  "room.rkt")
+(require "ship-inf.rkt"
+  "parent-child.rkt"
+  "room-inf.rkt")
+
 (module+ test
   (require rackunit
     rackunit/text-ui))
 
-(provide ship<%> ship? ship/c ship%)
+(provide ship%
+  (all-from-out "ship-inf.rkt"))
 
-;; ship% {{{
+;;; Ship {{{
 ;
-(define ship<%>
-  (interface (parent<%>)
-    get-rooms
-    get-starting-room
-    get-parasite
-    place-rooms))
-
-(define ship?
-  (λ (o)
-    (is-a? o ship<%>)))
-
-(define ship/c
-  (is-a?/c ship<%>))
 
 (define/contract ship%
+  ;;; Contract {{{
   (class/c
     get-rooms
+    get-visible-rooms
     get-starting-room
     get-parasite
     [place-rooms (->m any)])
+  ;; }}}
 
+  ;;; parent% {{{
   (class* parent% (ship<%>)
     (super-new)
     (inherit get-children)
 
-    ;; Superclass augmentation {{{
-    ;
+    ;;; Augmentation {{{
+
     (define valid-child?
       (λ (child)
         (room? child)))
     (augment valid-child?)
     ;; }}}
 
-    ;; Accessor methods {{{
-    ;
+    ;;; Accessors {{{
+
     (define/public get-rooms
       (λ ()
         (filter (λ (e)
                   (room? e))
                 (get-children))))
+
+    (define/public get-visible-rooms ; TODO
+      (λ ()
+        (get-rooms)))
 
     (define/public get-starting-room
       (λ ()
@@ -66,21 +67,24 @@
           (send sr get-parasite))))
     ;; }}}
 
-    ;; Action methods {{{
-    ;
+    ;;; Actions {{{
+
     (define/public place-rooms
       (λ ()
         (let ([sr (get-starting-room)])
           (send sr set-pos! 0 0)
           (send sr place-neighbors))))
     ;; }}}
-))
-;; }}}
+  ) ; }}}
+)
+;;; }}}
 
-;; Unit tests {{{
+;;; Unit tests {{{
 ;
+
 (module+ test
-  (require "parasite.rkt")
+  (require "parasite.rkt"
+    "room.rkt")
   (void (run-tests
     (test-suite "ship class"
       (test-suite "returning parasite"

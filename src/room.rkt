@@ -1,18 +1,22 @@
+;;;; room.rkt
+
 #lang racket/base
+
 (require racket/class
   racket/gui/base
   racket/function)
-(require "room-h.rkt"
-  "parent-child.rkt"
+(require "room-inf.rkt"
   "entity.rkt"
-  "door.rkt"
-  "parasite.rkt")
+  "parent-child.rkt"
+  "door-inf.rkt"
+  "parasite-inf.rkt")
 
 (provide room%
-  (all-from-out "room-h.rkt"))
+  (all-from-out "room-inf.rkt"))
 
-;; room% {{{
+;;; room% {{{
 ;
+
 (define room%
   (class* (parent-mixin entity%) (room<%>)
     (super-new [width 200] [height 80]
@@ -21,29 +25,34 @@
     (inherit get-children)
     (inherit get-pos get-dimensions
              get-color)
+    (inherit get-y get-height)
     (inherit positioned?)
 
-    ;; Superclass augmentation {{{
-    ;
+    ;;; Augmentation {{{
+
     (define valid-child?
       (λ (child)
         (entity? child)))
     (augment valid-child?)
     ;; }}}
 
-    ;; Accessor methods {{{
-    ;
+    ;;; Accessors {{{
+
     (define/public get-name
       (λ ()
         (if (eq? room-name #f)
             ""
             room-name)))
 
+    (define/public get-floor
+      (λ ()
+        (let ([y (get-y)]
+              [h (get-height)])
+          (+ y h))))
+
     (define/public get-doors
       (λ ()
-        (filter (λ (e)
-                  (is-a? e door<%>))
-                (get-children))))
+        (filter door? (get-children))))
 
     (define/public get-lateral-doors
       (λ ()
@@ -63,6 +72,12 @@
                (send door get-destination))
              (get-lateral-doors))))
 
+    (define/public get-entities
+      (λ ()
+        (filter (λ (e)
+                  (entity? e))
+                (get-children))))
+
     (define/public get-parasite
       (λ ()
         (let ([psite-lst (filter parasite? (get-children))])
@@ -71,31 +86,25 @@
               (car psite-lst)))))
     ;; }}}
 
-    ;; Mutator methods {{{
-    ;
+    ;;; Mutators {{{
+
     ;; }}}
 
-    ;; Predicates {{{
-    ;
-    ;; General {{{
-    ;
+    ;;; Predicates {{{
+
     (define/public starting-room?
       (λ ()
         (name-equal? "sr" "starting_room" "starting-room")))
-    ;; }}}
 
-    ;; Variable specific {{{
-    ;
     (define/public name-equal?
       (λ (str . bss)
         (or (string=? (get-name) str)
             (and (not (null? bss))
                  (name-equal? . bss)))))
     ;; }}}
-    ;; }}}
 
-    ;; Action methods {{{
-    ;
+    ;;; Actions {{{
+
     (define/public place-neighbors
       (λ ()
         (for-each (λ (door)

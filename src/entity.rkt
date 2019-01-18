@@ -1,17 +1,22 @@
+;;;; entity.rkt
+
 #lang racket/base
+
 (require racket/class
   racket/contract
   racket/gui/base
   racket/function)
-(require "entity-h.rkt"
+(require "entity-inf.rkt"
   "parent-child.rkt")
 
 (provide entity%
-  (all-from-out "entity-h.rkt"))
+  (all-from-out "entity-inf.rkt"))
 
 ;; entity% {{{
 ;
+
 (define/contract entity%
+  ;;; Contract {{{
   (class/c
     (init-field [pos-x (or/c false/c real?)]
                 [pos-y (or/c false/c real?)]
@@ -21,13 +26,26 @@
                 [form (or/c zero? (and/c real? positive?))]
                 [stage (or/c zero? (and/c real? positive?))]
                 [stage-limit (or/c false/c (and/c real? positive?))]
+                [stride real?]
                 [color (or/c false/c (is-a?/c color%))])
+    (init-field [selectable? boolean?])
+    (field [dest-x (or/c false/c real?)]
+           [dest-y (or/c false/c real?)]
+           [dest-theta (or/c false/c real?)])
+    (field [move-timer (is-a?/c timer%)])
     get-x get-y get-pos
+    get-dest-x get-dest-y get-dest-pos
     get-width get-height get-dimensions
     get-color
     [set-x! ((or/c false/c real?) . ->m . any)]
     [set-y! ((or/c false/c real?) . ->m . any)]
     [set-pos! (->m (or/c false/c real?) (or/c false/c real?) any)]
+
+    [set-dest-x! ((or/c false/c real?) . ->m . any)]
+    [set-dest-y! ((or/c false/c real?) . ->m . any)]
+    [set-dest-pos! ((or/c false/c real?) (or/c false/c real?) . ->m . any)]
+    [clear-dest-pos! (->m any)]
+
 
     [set-unbound-x! ((or/c false/c real?) . ->m . any)]
     [set-unbound-y! ((or/c false/c real?) . ->m . any)]
@@ -39,28 +57,43 @@
                           (or/c zero? (and/c real? positive?))
                           any)]
 
-    [positioned? (->m boolean?)]
+    [positioned? (->m boolean?)] ; deprecated
+    [is-positioned? (->m boolean?)]
+    [is-selectable? (->m boolean?)]
+    [is-moving-self? (->m boolean?)]
 
-    [draw (->*m ((is-a?/c dc<%>)) (real? real?) any)])
+    [draw (->*m ((is-a?/c dc<%>)) (real? real?) any)]
+    [start-move (real? real? . ->m . any)]
+    [stop-move (->m any)]
+    [move (->m any)])
+  ;; }}}
 
+  ;;; entity% {{{
   (class* child% (entity<%>)
     (super-new)
     (init-field [pos-x #f] [pos-y #f]
                 [width 0] [height 0])
     (init-field [bm #f]
                 [form 0] [stage 0] [stage-limit #f]
+                [stride 0]
                 [color #f])
+    (init-field [selectable? #f])
+    (field [dest-x #f] [dest-y #f]
+           [dest-theta #f] [new-dest? #f])
+    (field [move-timer
+            (new timer% [notify-callback (thunk
+                                           (send this move))]
+                        [interval 42])])
 
-    ;; Initialization {{{
-    ;
+    ;;; Initialization {{{
+
     ((thunk
        (key-bitmap)))
     ;; }}}
 
-    ;; Accessor methods {{{
-    ;
-    ;; Positional variables {{{
-    ;
+    ;;; Accessors {{{
+
+    ;;; Positional variables {{{
     (define/public get-x
       (λ ()
         pos-x))
@@ -73,10 +106,20 @@
       (λ ()
         (values (get-x) (get-y))))
 
+    (define/public get-dest-x
+      (λ ()
+        dest-x))
+
+    (define/public get-dest-y
+      (λ ()
+        dest-y))
+
+    (define/public get-dest-pos
+      (λ ()
+        (values (get-dest-x) (get-dest-y))))
     ;; }}}
 
-    ;; Dimensional variables {{{
-    ;
+    ;;; Dimensional variables {{{
     (define/public get-width
       (λ ()
         width))
@@ -90,8 +133,7 @@
         (values (get-width) (get-height))))
     ;; }}}
 
-    ;; Sprite variables {{{
-    ;
+    ;;; Sprite variables {{{
     (define/private get-bitmap
       (λ ()
         bm))
@@ -123,10 +165,9 @@
     ;; }}}
     ;; }}}
 
-    ;; Mutator methods {{{
-    ;
-    ;; Positional variables {{{
-    ;
+    ;;; Mutators {{{
+
+    ;;; Positional variables {{{
     (define/public set-x!
       (λ (nx)
         (set! pos-x nx)))
@@ -139,6 +180,23 @@
       (λ (nx ny)
         (set-x! nx)
         (set-y! ny)))
+
+    (define/private clear-pos!
+      (λ ()
+        (set-pos! #f #f)))
+
+    (define/public move-x!
+      (λ (dx)
+        (set-x! (+ (get-x) dx))))
+
+    (define/public move-y!
+      (λ (dy)
+        (set-y! (+ (get-y) dy))))
+
+    (define/public move-pos!
+      (λ (dx dy)
+        (move-x! dx)
+        (move-y! dy)))
 
     (define/public set-unbound-x!
       (λ (nx)
@@ -154,10 +212,29 @@
       (λ (nx ny)
         (set-unbound-x! nx)
         (set-unbound-y! ny)))
+
+    (define/public set-dest-x!
+      (λ (nx)
+        (set! dest-x nx)
+        (set! new-dest? #t)))
+
+    (define/public set-dest-y!
+      (λ (ny)
+        (set! dest-y ny)
+        (set! new-dest? #t)))
+
+    (define/public set-dest-pos!
+      (λ (nx ny)
+        (set! dest-x nx)
+        (set! dest-y ny)
+        (set! new-dest? #t)))
+
+    (define/public clear-dest-pos!
+      (λ ()
+        (set-dest-pos! #f #f)))
     ;; }}}
 
-    ;; Dimensional variables {{{
-    ;
+    ;;; Dimensional variables {{{
     (define/public set-width!
       (λ (nw)
         (set! width nw)))
@@ -172,8 +249,7 @@
         (set-height! nh)))
     ;; }}}
 
-    ;; Sprite variables {{{
-    ;
+    ;;; Sprite variables {{{
     (define/private set-form!
       (λ (nf)
         (when (>= nf 0)
@@ -206,16 +282,30 @@
     ;; }}}
     ;; }}}
 
-    ;; Predicates {{{
-    ;
-    (define/public positioned?
+    ;;; Predicates {{{
+
+    (define/public positioned? ; deprecated
       (λ ()
         (and (not (eq? pos-x #f))
              (not (eq? pos-y #f)))))
+
+    (define/public is-positioned?
+      (λ ()
+        (and (not (eq? pos-x #f))
+             (not (eq? pos-y #f)))))
+
+    (define/public is-selectable?
+      (λ ()
+        selectable?))
+
+    (define/public is-moving-self?
+      (λ ()
+        (and (not (eq? (get-dest-x) #f))
+             (not (eq? (get-dest-y) #f)))))
     ;; }}}
  
-    ;; Action methods {{{
-    ;
+    ;;; Actions {{{
+
     (define/public draw
       (λ (dc [xo 0] [yo 0])
         (let ([bm (get-bitmap)])
@@ -227,8 +317,37 @@
                 (send dc draw-bitmap-section bm
                          x y src-x src-y
                          w h)))))))
+
+    (define/public start-move
+      (λ (dest-x dest-y)
+        (set-dest-pos! dest-x dest-y)))
+
+    (define/public stop-move
+      (λ ()
+        (clear-dest-pos!)))
+
+    (define/public move
+      (λ ()
+        (when (is-moving-self?)
+          (let-values ([(x0 y0) (get-pos)]
+                       [(xf yf) (get-dest-pos)])
+            (let ([sdx (- xf x0)]
+                  [sdy (- yf y0)])
+              (let ([ax (if (< sdx 0) -1 1)]
+                    [ay (if (< sdy 0) -1 1)]
+                    [dx (abs sdx)]
+                    [dy (abs sdy)])
+                (let ([theta (atan (/ dy dx))])
+                  (cond [(< stride (sqrt (+ (expt dx 2) (expt dy 2))))
+                         (let ([x1 (+ x0 (* ax stride (cos theta)))]
+                               [y1 (+ y0 (* ay stride (sin theta)))])
+                           (set-pos! x1 y1))]
+                        [else (begin
+                                (set-pos! xf yf)
+                                (stop-move))]))))))))
     ;; }}}
-))
+  ) ; }}}
+)
 ;; }}}
 
 ; vim: set ts=2 sw=2 expandtab lisp tw=79:

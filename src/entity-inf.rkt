@@ -1,3 +1,5 @@
+;;;; entity-inf.rkt
+
 #lang racket/base
 
 (require racket/class)
@@ -8,12 +10,19 @@
 (define entity<%>
   (interface (child<%>)
     get-x get-y get-pos
+    get-dest-x get-dest-y get-dest-pos
     get-width get-height get-dimensions
     get-color
     set-x! set-y! set-pos!
     set-unbound-x! set-unbound-y! set-unbound-pos!
+    set-dest-x! set-dest-y! set-dest-pos! clear-dest-pos!
     positioned?
-    draw))
+    is-positioned?
+    is-selectable?
+    is-moving-self?
+    draw
+    start-move stop-move
+    move))
 
 (define entity?
   (λ (o)

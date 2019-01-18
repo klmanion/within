@@ -1,7 +1,9 @@
+;;;; room-inf.rkt
+
 #lang racket/base
 
 (require racket/class)
-(require "entity-h.rkt"
+(require "entity-inf.rkt"
   "parent-child.rkt")
 
 (provide room<%> room? room/c)
@@ -9,6 +11,7 @@
 (define room<%>
   (interface (entity<%> parent<%>)
     get-name
+    get-floor
     get-doors get-lateral-doors
     get-destinations get-lateral-destinations
     get-parasite
