@@ -345,7 +345,7 @@
                         [else (begin
                                 (set-pos! xf yf)
                                 (stop-move))]))))))))
-     ;; }}}
+    ;; }}}
   ) ; }}}
 )
 ;; }}}
